@@ -1,69 +1,48 @@
-# React + TypeScript + Vite
+# Francis Portfolio Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A personal portfolio website built with **React + TypeScript** and styled with **Tailwind CSS**, featuring:
+- Responsive navigation (desktop + mobile overlay)
+- Smooth scrolling to sections
+- A dedicated **About** page with a swipeable image carousel
+- **Certificates & Training** displayed as a chronological timeline with certificate images
+- **Experience** cards with a full-page “Read more” detail view (with carousel-ready images + 3D model showcase placeholders)
+- Footer with clickable GitHub / LinkedIn / Email icons
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- **React** + **TypeScript**
+- **Tailwind CSS**
+- **react-icons**
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Navigation
+- Desktop nav links smoothly scroll to sections.
+- Mobile nav opens a full-screen overlay and locks page scrolling.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### Pages
+- **Home page**: Home + Skills + Education + Experience
+- **About page**: Opens when clicking **Get to know me**, includes:
+  - Swipeable image carousel (3–5 images)
+  - About text
+  - Certificates timeline (shown **only** on About page)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Experience
+- Card grid view (image + tech stack + Read more)
+- Full-page detail view (hides navbar/footer):
+  - Carousel-ready image area (prev/next + thumbnails)
+  - Tech stack chips
+  - Highlights list
+  - 3D Models section (ready for embedded viewers or external links)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Certificates & Training
+- Timeline layout (mobile-friendly)
+- Chronologically sorted (oldest → newest)
+- Each item supports a certificate image preview
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Project Structure (Recommended)

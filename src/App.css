@@ -39,3 +39,21 @@
 .read-the-docs {
   color: #888;
 }
+
+/* App.css */
+
+/* Smooth grow + fade on initial mount */
+@keyframes growFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.page-enter {
+  animation: growFadeIn 500ms ease-out both;
+}
