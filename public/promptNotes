@@ -46,3 +46,43 @@ Homepage
 2. Add github and linkedIn button links next to send email button
 3. sharpen the rounded edges 
 4. Implement similar changes (compacting) to the other pages of the portfolio. 
+
+About me Page
+1. My Images in the about_photos are in portrait, and there is a bunch of whitespace
+2. The professional profile card does not align with the about photos and there are massive whitespaces not occupied. 
+3. 3D models in the about me page are not loading ? or they are still being loaded and the website shows the following:  
+    "Nothing here yet."
+    I think placing something like a progress bar is more appropriate here or better yet, before showing the whole page, load everything first.
+4. Under the Sample outputs, I want the 3D model cards to be compacted and maybe make the sample outputs and certificates within the same row but on different columns. 
+5. Make display of the certificates more like on one side everything and years on the other. Scale down the images to be compacted and to preserve space.
+
+
+1. maybe divide the column for sample outputs and certificate and training as follows:
+    sample outputs - 4/10
+    certificate - 6/10
+
+2. Reduce the size of the 3D model cards to be smaller in width. 
+
+3. make the certificate images pressable and viewable
+
+4. Make the image the same width as the sample outputs with the professional summary also the same width as the certificates timeline below it. Do not make the image and professional summary to be necessarily the same height. At all times, avoid whitespaces. Compact the professional summary card and push the certificates upward just below it. 
+
+
+Home Page
+General
+1. do not use rounded-edges anymore (make everything look sleek and pro)
+2. Use a different font color instead of grey
+
+Desktop
+1. fit at most two 3D model cards under the sample outputs/3D models section (to preserve image aspect ratio by making it less rectangular and more square-like).
+
+Mobile
+1. Organization of items. It should be as follows from top to bottom.
+    - Hero Image
+    - Get to know me, Send Email, etc. buttons
+    - Portfolio Overview
+    - (Retain as is)
+
+2. Resize the Get to know me, Send Email, etc. buttons to properly fit the mobile view
+
+3. Nest the skills within one container. Same goes for education and experiences.

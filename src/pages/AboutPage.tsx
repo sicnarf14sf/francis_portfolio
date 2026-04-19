@@ -51,6 +51,13 @@ export default function AboutPage(): JSX.Element {
 
         if (cancelled) return;
 
+        console.info("[AboutPage] Loaded About page data.", {
+          photoCount: photos.length,
+          outputCount: aboutOutputs.length,
+          certificateCount: certs.length,
+          outputIds: aboutOutputs.map((item) => item.id),
+        });
+
         setContent(pageContent);
         setImages(photos);
         setOutputs(aboutOutputs);
