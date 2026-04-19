@@ -26,12 +26,7 @@ export default function Experience({
 
       <div className={`grid grid-cols-1 gap-3 ${compact ? "md:grid-cols-1" : "md:grid-cols-2"}`}>
         {experiences.map((exp) => (
-          <div
-            key={exp.id}
-            className={`overflow-hidden border bg-card shadow-sm transition hover:shadow-md ${
-              compact ? "rounded-md" : "rounded-lg"
-            }`}
-          >
+          <div key={exp.id} className="overflow-hidden border bg-card shadow-sm transition hover:shadow-md">
             <div className={`${compact ? "h-28" : "h-40"} w-full bg-muted`}>
               <img
                 src={exp.thumbnailSrc ?? exp.images[0]?.src ?? ""}
@@ -45,7 +40,7 @@ export default function Experience({
 
             <div className={compact ? "p-3" : "p-4"}>
               <h3 className="text-sm font-bold md:text-base">{exp.title}</h3>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs text-foreground/70">
                 {exp.org} • {exp.date}
               </p>
 
@@ -54,7 +49,7 @@ export default function Experience({
                   {exp.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-md border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground"
+                      className="border bg-card px-2.5 py-1 text-[11px] font-medium text-foreground/70"
                     >
                       {tag}
                     </span>
@@ -65,9 +60,7 @@ export default function Experience({
               <div className={compact ? "mt-3" : "mt-4"}>
                 <button
                   onClick={(): void => onReadMore(exp)}
-                  className={`w-full border bg-foreground px-4 text-sm font-semibold text-background transition hover:opacity-90 ${
-                    compact ? "rounded-md py-2" : "rounded-lg py-2"
-                  }`}
+                  className="w-full border bg-foreground px-4 py-2 text-sm font-semibold text-background transition hover:opacity-90"
                 >
                   Read more
                 </button>

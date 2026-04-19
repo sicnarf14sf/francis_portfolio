@@ -24,23 +24,18 @@ export default function Education({
 
       <div className="grid grid-cols-1 gap-3">
         {education.map((edu) => (
-          <div
-            key={edu.id}
-            className={`border bg-card shadow-sm transition hover:shadow-md ${
-              compact ? "rounded-md p-3" : "rounded-lg p-4"
-            }`}
-          >
+          <div key={edu.id} className={`border bg-card shadow-sm transition hover:shadow-md ${compact ? "p-3" : "p-4"}`}>
             <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
               <div>
                 <h3 className="text-sm font-bold md:text-base">{edu.school}</h3>
-                <p className={`mt-1 text-muted-foreground ${compact ? "text-xs" : "text-sm"}`}>
+                <p className={`mt-1 text-foreground/75 ${compact ? "text-xs" : "text-sm"}`}>
                   <span className="font-medium">{edu.program}</span>
-                  <span className="text-muted-foreground"> • {edu.year}</span>
+                  <span className="text-foreground/65"> • {edu.year}</span>
                 </p>
               </div>
 
               {edu.honorsReceived ? (
-                <span className="w-fit rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-500/10 dark:text-emerald-300">
+                <span className="w-fit border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-500/10 dark:text-emerald-300">
                   Honors: {edu.honorsReceived}
                 </span>
               ) : null}
@@ -48,14 +43,10 @@ export default function Education({
 
             <div className={`${compact ? "my-3" : "my-4"} h-px w-full bg-border`} />
 
-            <ul
-              className={`text-sm text-muted-foreground ${
-                compact ? "space-y-1.5 leading-5" : "space-y-2 leading-6"
-              }`}
-            >
+            <ul className={`text-sm text-foreground/75 ${compact ? "space-y-1.5 leading-5" : "space-y-2 leading-6"}`}>
               {edu.details.map((detail) => (
                 <li key={detail} className="flex gap-2">
-                  <span className="mt-2 inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground" />
+                  <span className="mt-2 inline-block h-2 w-2 shrink-0 bg-foreground/45" />
                   <span>{detail}</span>
                 </li>
               ))}

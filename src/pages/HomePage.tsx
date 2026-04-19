@@ -84,23 +84,33 @@ export default function HomePage(): JSX.Element {
               <div className="space-y-4 md:space-y-5">
                 <Home onGetToKnowMe={() => navigate("/about")} />
 
-                <div className="space-y-5 xl:hidden">
-                  <Skills />
+                <div className="space-y-4 xl:hidden">
+                  <div className="border bg-card/60 p-4 shadow-sm">
+                    <Skills compact />
+                  </div>
+
                   <Recommendations recommendations={recommendations} />
-                  <Education education={education} />
-                  <Experience
-                    experiences={experiences}
-                    onReadMore={(exp) => navigate(`/experience/${exp.id}`)}
-                  />
+
+                  <div className="border bg-card/60 p-4 shadow-sm">
+                    <Education education={education} compact />
+                  </div>
+
+                  <div className="border bg-card/60 p-4 shadow-sm">
+                    <Experience
+                      experiences={experiences}
+                      onReadMore={(exp) => navigate(`/experience/${exp.id}`)}
+                      compact
+                    />
+                  </div>
                 </div>
 
                 <div className="hidden xl:grid xl:grid-cols-[1.02fr_0.98fr] xl:items-start xl:gap-4">
-                  <div className="space-y-4 border bg-card/60 p-4 shadow-sm rounded-md">
+                  <div className="space-y-4 border bg-card/60 p-4 shadow-sm">
                     <Skills compact />
                     <Education education={education} compact />
                   </div>
 
-                  <div className="space-y-4 border bg-card/60 p-4 shadow-sm rounded-md">
+                  <div className="space-y-4 border bg-card/60 p-4 shadow-sm">
                     <Recommendations recommendations={recommendations} compact />
                     <Experience
                       experiences={experiences}

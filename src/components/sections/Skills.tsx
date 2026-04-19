@@ -64,12 +64,12 @@ export default function Skills({
           <div
             key={group.title}
             className={`border bg-card shadow-sm transition hover:shadow-md ${
-              compact ? "rounded-md p-3" : "rounded-lg p-4"
+              compact ? "p-3" : "p-4"
             }`}
           >
             <h3 className="text-sm font-bold md:text-base">{group.title}</h3>
             <ul
-              className={`text-sm text-muted-foreground ${
+              className={`text-sm text-foreground/75 ${
                 compact ? "mt-2 space-y-1.5 leading-5" : "mt-3 space-y-2 leading-6"
               }`}
             >

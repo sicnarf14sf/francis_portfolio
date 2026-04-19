@@ -76,12 +76,16 @@ export default function AboutPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-background px-5 py-8 text-foreground page-enter md:px-8">
       <div className="mx-auto max-w-6xl">
-        <h1 className="text-center text-2xl font-bold md:text-3xl">
-          {content.title}
-        </h1>
         {loading ? (
-          <div className="py-10 text-sm text-muted-foreground">
-            Loading content...
+          <div className="py-12">
+            <div className="mx-auto max-w-xl rounded-md border bg-card p-5 shadow-sm">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="h-full w-1/2 animate-pulse rounded-full bg-foreground/70" />
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Loading About page content...
+              </p>
+            </div>
           </div>
         ) : errorMsg ? (
           <div className="py-10">
@@ -93,28 +97,68 @@ export default function AboutPage(): JSX.Element {
           </div>
         ) : (
           <>
-            <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.7fr)] lg:items-center">
-              <div className="order-2 lg:order-1">
+            <h1 className="text-center text-2xl font-bold md:text-3xl">
+              {content.title}
+            </h1>
+
+            <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.2fr)] xl:items-start">
+              <div className="space-y-5">
                 <ImageCarousel images={images} />
+                <SampleOutputs outputs={outputs} loading={loading} />
               </div>
 
-              <div className="order-1 rounded-lg border bg-card/70 p-5 text-center shadow-sm backdrop-blur lg:order-2 lg:p-6 lg:text-left">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                  Professional Profile
-                </p>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {content.intro}
-                </p>
+              <div className="space-y-5">
+                <div className="grid gap-3 rounded-md border bg-card/70 p-4 shadow-sm backdrop-blur lg:grid-cols-[minmax(0,1.2fr)_minmax(10rem,0.8fr)] lg:items-start">
+                  <div className="text-center lg:text-left">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                      Professional Profile
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      {content.intro}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-left">
+                    <div className="rounded-sm border bg-background/70 p-2.5">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        Focus
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-foreground">
+                        Web, AI, 3D
+                      </div>
+                    </div>
+                    <div className="rounded-sm border bg-background/70 p-2.5">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        Strength
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-foreground">
+                        Research-driven
+                      </div>
+                    </div>
+                    <div className="rounded-sm border bg-background/70 p-2.5">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        Work Style
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-foreground">
+                        Cross-functional
+                      </div>
+                    </div>
+                    <div className="rounded-sm border bg-background/70 p-2.5">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        Location
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-foreground">
+                        Philippines
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <CertificatesTimeline certificates={certificates} />
+                </div>
               </div>
             </section>
-
-            <div className="mt-6">
-              <SampleOutputs outputs={outputs} />
-            </div>
-
-            <div className="mt-6">
-              <CertificatesTimeline certificates={certificates} />
-            </div>
           </>
         )}
 

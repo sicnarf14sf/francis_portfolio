@@ -53,16 +53,16 @@ export default function ImageCarousel({
 
   if (count === 0) {
     return (
-      <div className="mx-auto flex h-64 max-w-3xl items-center justify-center rounded-lg border bg-muted text-sm text-muted-foreground">
+      <div className="mx-auto flex h-[24rem] w-full max-w-sm items-center justify-center border bg-muted text-sm text-muted-foreground md:h-[27rem]">
         Add 3-5 images to display here.
       </div>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="mx-auto w-full max-w-sm md:max-w-md">
       <div
-        className="relative overflow-hidden rounded-lg border bg-card shadow-sm"
+        className="relative overflow-hidden border bg-card shadow-sm"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -74,14 +74,14 @@ export default function ImageCarousel({
           {images.map((img: CarouselImage) => (
             <div
               key={img.src}
-              className="flex w-full shrink-0 justify-center bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.12),_transparent_60%)] p-3 md:p-4"
+              className="flex w-full shrink-0 justify-center bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.12),_transparent_60%)] p-2.5 md:p-3"
             >
-              <div className="w-full max-w-2xl overflow-hidden rounded-md border bg-muted/80">
+              <div className="w-full overflow-hidden border bg-muted/80">
                 <img
                   src={img.src}
                   alt={img.alt}
                   draggable={false}
-                  className="h-[18rem] w-full object-cover bg-muted md:h-[21rem] md:object-contain"
+                  className="h-[22rem] w-full object-cover object-top bg-muted md:h-[25rem]"
                 />
               </div>
             </div>
@@ -93,7 +93,7 @@ export default function ImageCarousel({
             <button
               type="button"
               onClick={goPrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-md border bg-card/90 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur transition hover:bg-muted md:left-4"
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 border bg-card/90 px-3 py-1.5 text-sm font-semibold shadow-sm backdrop-blur transition hover:bg-muted md:left-3"
               aria-label="Previous image"
             >
               Prev
@@ -102,7 +102,7 @@ export default function ImageCarousel({
             <button
               type="button"
               onClick={goNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border bg-card/90 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur transition hover:bg-muted md:right-4"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 border bg-card/90 px-3 py-1.5 text-sm font-semibold shadow-sm backdrop-blur transition hover:bg-muted md:right-3"
               aria-label="Next image"
             >
               Next

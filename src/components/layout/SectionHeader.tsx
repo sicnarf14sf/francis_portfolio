@@ -68,7 +68,7 @@ export default function SectionHeader({
         <div className="flex items-center gap-3">
           {Icon ? (
             <span
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-md border ${styles.badge}`}
+              className={`inline-flex h-8 w-8 items-center justify-center border ${styles.badge}`}
               aria-hidden="true"
             >
               <Icon className="h-4 w-4 text-foreground" />
@@ -90,12 +90,12 @@ export default function SectionHeader({
   // About page layout: centered, icon above title
   if (isAbout) {
     return (
-      <div className={`mb-5 overflow-hidden rounded-lg border ${styles.bg}`}>
+      <div className={`mb-5 overflow-hidden border ${styles.bg}`}>
         <div className="px-6 py-7 md:px-8 md:py-8">
           <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
             {Icon ? (
               <span
-                className={`mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg border shadow-sm ${styles.badge}`}
+                className={`mb-4 inline-flex h-11 w-11 items-center justify-center border shadow-sm ${styles.badge}`}
                 aria-hidden="true"
               >
                 <Icon className="h-6 w-6 text-foreground" />
@@ -128,7 +128,7 @@ export default function SectionHeader({
 
   // Default layout (left-aligned, icon on right)
   return (
-    <div className={`mb-5 overflow-hidden rounded-lg border ${styles.bg}`}>
+    <div className={`mb-5 overflow-hidden border ${styles.bg}`}>
       <div className="px-4 py-4 md:px-5 md:py-4">
         <div className="flex items-start gap-4">
           <div className="min-w-0 flex-1">
@@ -137,7 +137,7 @@ export default function SectionHeader({
 
               {Icon ? (
                 <span
-                  className={`ml-auto inline-flex h-9 w-9 items-center justify-center rounded-lg border shadow-sm ${styles.badge}`}
+                  className={`ml-auto inline-flex h-9 w-9 items-center justify-center border shadow-sm ${styles.badge}`}
                   aria-hidden="true"
                 >
                   <Icon className="h-5 w-5 text-foreground" />
