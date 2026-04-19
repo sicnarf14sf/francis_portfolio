@@ -1,6 +1,9 @@
 import { useEffect, useState, type JSX } from "react";
 import { FaEnvelope, FaGithub, FaLinkedin, FaUserTie } from "react-icons/fa6";
 
+const heroImage: string = new URL("../../assets/hero_image.JPG", import.meta.url)
+  .href;
+
 export default function Home({
   onGetToKnowMe,
 }: {
@@ -27,7 +30,7 @@ export default function Home({
     >
       <div className="order-2 flex justify-center md:order-1 md:justify-start">
         <img
-          src="/src/assets/hero_image.JPG"
+          src={heroImage}
           alt="Francis working on projects"
           className="h-auto w-full max-w-[12rem] object-cover md:h-full md:max-w-none md:object-cover"
         />
