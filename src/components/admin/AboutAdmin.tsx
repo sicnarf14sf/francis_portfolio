@@ -959,148 +959,150 @@ export default function AboutAdmin(): JSX.Element {
         ) : null}
 
         <div className="mt-5 space-y-6">
-          <div className="rounded-xl border p-4">
-            <h3 className="text-sm font-semibold text-gray-900">
-              About page content
-            </h3>
-            <p className="mt-1 text-xs text-gray-500">
-              This controls the title and intro paragraph shown on the About page.
-            </p>
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+            <div className="rounded-xl border p-4">
+              <h3 className="text-sm font-semibold text-gray-900">
+                About page content
+              </h3>
+              <p className="mt-1 text-xs text-gray-500">
+                This controls the title and intro paragraph shown on the About page.
+              </p>
 
-            <div className="mt-4 space-y-3">
-              <input
-                className="w-full rounded-xl border px-3 py-2 text-sm"
-                value={title}
-                onChange={(e): void => setTitle(e.target.value)}
-                placeholder="About page title"
-              />
-              <textarea
-                className="w-full rounded-xl border px-3 py-2 text-sm"
-                rows={6}
-                value={intro}
-                onChange={(e): void => setIntro(e.target.value)}
-                placeholder="Write the About page introduction"
-              />
+              <div className="mt-4 space-y-3">
+                <input
+                  className="w-full rounded-xl border px-3 py-2 text-sm"
+                  value={title}
+                  onChange={(e): void => setTitle(e.target.value)}
+                  placeholder="About page title"
+                />
+                <textarea
+                  className="w-full rounded-xl border px-3 py-2 text-sm"
+                  rows={10}
+                  value={intro}
+                  onChange={(e): void => setIntro(e.target.value)}
+                  placeholder="Write the About page introduction"
+                />
+                <button
+                  type="button"
+                  disabled={savingContent}
+                  onClick={(): void => void onSaveContent()}
+                  className={`w-full rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                    savingContent
+                      ? "cursor-not-allowed bg-gray-200 text-gray-500"
+                      : "bg-gray-900 text-white hover:opacity-90"
+                  }`}
+                >
+                  {savingContent ? "Saving..." : "Save About content"}
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <h3 className="text-sm font-semibold text-gray-900">
+                About photo carousel
+              </h3>
+              <p className="mt-1 text-xs text-gray-500">
+                Upload, review, reorder, and remove the photos shown on the About page carousel.
+              </p>
+
+              <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="sr-only"
+                  onChange={(e): void =>
+                    setPendingPhotoFiles(e.target.files ? Array.from(e.target.files) : [])
+                  }
+                />
+                {pendingPhotoFiles.length > 0
+                  ? `${pendingPhotoFiles.length} photo${pendingPhotoFiles.length === 1 ? "" : "s"} selected`
+                  : "Choose About photos"}
+              </label>
+
               <button
                 type="button"
-                disabled={savingContent}
-                onClick={(): void => void onSaveContent()}
-                className={`w-full rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                  savingContent
-                    ? "cursor-not-allowed bg-gray-200 text-gray-500"
-                    : "bg-gray-900 text-white hover:opacity-90"
+                disabled={pendingPhotoFiles.length === 0 || busy}
+                onClick={(): void => void onUploadPhotos()}
+                className={`mt-3 w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                  pendingPhotoFiles.length > 0 && !busy
+                    ? "bg-gray-900 text-white shadow-sm hover:opacity-90"
+                    : "cursor-not-allowed bg-gray-200 text-gray-500"
                 }`}
               >
-                {savingContent ? "Saving..." : "Save About content"}
+                Upload About photos
               </button>
-            </div>
-          </div>
 
-          <div className="rounded-xl border p-4">
-            <h3 className="text-sm font-semibold text-gray-900">
-              About photo carousel
-            </h3>
-            <p className="mt-1 text-xs text-gray-500">
-              Upload, review, reorder, and remove the photos shown on the About page carousel.
-            </p>
-
-            <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="sr-only"
-                onChange={(e): void =>
-                  setPendingPhotoFiles(e.target.files ? Array.from(e.target.files) : [])
-                }
-              />
-              {pendingPhotoFiles.length > 0
-                ? `${pendingPhotoFiles.length} photo${pendingPhotoFiles.length === 1 ? "" : "s"} selected`
-                : "Choose About photos"}
-            </label>
-
-            <button
-              type="button"
-              disabled={pendingPhotoFiles.length === 0 || busy}
-              onClick={(): void => void onUploadPhotos()}
-              className={`mt-3 w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                pendingPhotoFiles.length > 0 && !busy
-                  ? "bg-gray-900 text-white shadow-sm hover:opacity-90"
-                  : "cursor-not-allowed bg-gray-200 text-gray-500"
-              }`}
-            >
-              Upload About photos
-            </button>
-
-            <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {photos.length === 0 ? (
-                <div className="rounded-xl border bg-gray-50 p-4 text-sm text-gray-600 md:col-span-2 xl:col-span-3">
-                  No About photos yet.
-                </div>
-              ) : (
-                photos.map((photo, index) => (
-                  <div key={photo.id} className="rounded-2xl border bg-white p-3 shadow-sm">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-xs text-gray-600">
-                        Order: <span className="font-semibold">{photo.sort_order}</span>
+              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                {photos.length === 0 ? (
+                  <div className="rounded-xl border bg-gray-50 p-4 text-sm text-gray-600 md:col-span-2">
+                    No About photos yet.
+                  </div>
+                ) : (
+                  photos.map((photo, index) => (
+                    <div key={photo.id} className="rounded-2xl border bg-white p-3 shadow-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs text-gray-600">
+                          Order: <span className="font-semibold">{photo.sort_order}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            disabled={index === 0}
+                            onClick={(): void => void swapPhotoOrder(photo, photos[index - 1])}
+                            className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold disabled:opacity-40"
+                          >
+                            Up
+                          </button>
+                          <button
+                            type="button"
+                            disabled={index === photos.length - 1}
+                            onClick={(): void => void swapPhotoOrder(photo, photos[index + 1])}
+                            className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold disabled:opacity-40"
+                          >
+                            Down
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(): void => void onDeletePhoto(photo)}
+                            className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          disabled={index === 0}
-                          onClick={(): void => void swapPhotoOrder(photo, photos[index - 1])}
-                          className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold disabled:opacity-40"
-                        >
-                          Up
-                        </button>
-                        <button
-                          type="button"
-                          disabled={index === photos.length - 1}
-                          onClick={(): void => void swapPhotoOrder(photo, photos[index + 1])}
-                          className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold disabled:opacity-40"
-                        >
-                          Down
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(): void => void onDeletePhoto(photo)}
-                          className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
 
-                    <div className="mt-3 mx-auto overflow-hidden rounded-xl border bg-gray-50 max-w-[220px]">
-                      <img
-                        src={getBucketImageUrl(ABOUT_BUCKET, photo.path)}
-                        alt={photo.alt ?? "About photo"}
-                        className="h-28 w-full object-cover"
+                      <div className="mt-3 mx-auto overflow-hidden rounded-xl border bg-gray-50 max-w-[220px]">
+                        <img
+                          src={getBucketImageUrl(ABOUT_BUCKET, photo.path)}
+                          alt={photo.alt ?? "About photo"}
+                          className="h-28 w-full object-cover"
+                        />
+                      </div>
+
+                      <input
+                        className="mt-3 w-full rounded-lg border px-3 py-2 text-xs"
+                        defaultValue={photo.alt ?? ""}
+                        placeholder="Alt text"
+                        onBlur={(e): void =>
+                          void onUpdatePhotoMeta(photo.id, { alt: e.target.value })
+                        }
+                      />
+
+                      <input
+                        className="mt-2 w-full rounded-lg border px-3 py-2 text-xs"
+                        type="number"
+                        defaultValue={photo.sort_order}
+                        onBlur={(e): void =>
+                          void onUpdatePhotoMeta(photo.id, {
+                            sort_order: Number(e.target.value),
+                          })
+                        }
                       />
                     </div>
-
-                    <input
-                      className="mt-3 w-full rounded-lg border px-3 py-2 text-xs"
-                      defaultValue={photo.alt ?? ""}
-                      placeholder="Alt text"
-                      onBlur={(e): void =>
-                        void onUpdatePhotoMeta(photo.id, { alt: e.target.value })
-                      }
-                    />
-
-                    <input
-                      className="mt-2 w-full rounded-lg border px-3 py-2 text-xs"
-                      type="number"
-                      defaultValue={photo.sort_order}
-                      onBlur={(e): void =>
-                        void onUpdatePhotoMeta(photo.id, {
-                          sort_order: Number(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
@@ -1458,6 +1460,37 @@ export default function AboutAdmin(): JSX.Element {
                         value={outputLinkUrl}
                         onChange={(e): void => setOutputLinkUrl(e.target.value)}
                       />
+
+                      <input
+                        className="w-full rounded-xl border px-3 py-2 text-sm"
+                        placeholder="Thumbnail alt text"
+                        value={outputImageAlt}
+                        onChange={(e): void => setOutputImageAlt(e.target.value)}
+                      />
+
+                      {outputImagePath ? (
+                        <div className="overflow-hidden rounded-xl border bg-gray-50">
+                          <img
+                            src={getBucketImageUrl(ABOUT_BUCKET, outputImagePath)}
+                            alt={outputImageAlt || outputTitle || "Project/app thumbnail"}
+                            className="h-40 w-full object-contain"
+                          />
+                        </div>
+                      ) : null}
+
+                      <label className="flex cursor-pointer items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={(e): void =>
+                            setPendingOutputImage(e.target.files?.[0] ?? null)
+                          }
+                        />
+                        {pendingOutputImage
+                          ? pendingOutputImage.name
+                          : "Choose project/app thumbnail"}
+                      </label>
                     </div>
                   ) : null}
 
@@ -1554,7 +1587,7 @@ export default function AboutAdmin(): JSX.Element {
                             <img
                               src={getBucketImageUrl(ABOUT_BUCKET, output.image_path)}
                               alt={output.image_alt ?? output.title}
-                              className="h-36 w-full object-cover"
+                              className="h-36 w-full object-contain"
                             />
                           </div>
                         ) : output.kind === "3d" ? (

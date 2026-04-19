@@ -27,15 +27,20 @@ export default function SampleOutputs({
 }): JSX.Element {
   const [tab, setTab] = useState<SampleOutputKind>("3d");
   const [active3D, setActive3D] = useState<SampleOutput3D | null>(null);
+  const [activeImage, setActiveImage] = useState<{
+    src: string;
+    alt: string;
+    title: string;
+  } | null>(null);
 
   useEffect((): (() => void) => {
-    if (active3D) document.body.style.overflow = "hidden";
+    if (active3D || activeImage) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
 
     return (): void => {
       document.body.style.overflow = "";
     };
-  }, [active3D]);
+  }, [active3D, activeImage]);
 
   const models: SampleOutput3D[] = outputs.filter(is3D);
   const images: SampleOutputImage[] = outputs.filter(isImage);
@@ -66,9 +71,7 @@ export default function SampleOutputs({
 
       <div
         className={`mt-4 grid gap-3 ${
-          tab === "3d"
-            ? "grid-cols-1 md:grid-cols-2"
-            : "grid-cols-1"
+          tab === "3d" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
         }`}
       >
         {loading ? (
@@ -98,12 +101,12 @@ export default function SampleOutputs({
                   onClick={(): void => setActive3D(item)}
                   className="w-full overflow-hidden border bg-card text-left shadow-sm transition hover:shadow-md"
                 >
-                  <div className="aspect-square w-full bg-muted">
+                  <div className="aspect-square w-full bg-muted p-3">
                     {item.previewSrc ? (
                       <img
                         src={item.previewSrc}
                         alt={item.title}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                         onError={(e): void => {
                           e.currentTarget.style.display = "none";
                         }}
@@ -147,16 +150,26 @@ export default function SampleOutputs({
             if (item.kind === "image") {
               return (
                 <div key={item.id} className="overflow-hidden border bg-card shadow-sm">
-                  <div className="h-40 w-full bg-muted">
+                  <button
+                    type="button"
+                    onClick={(): void =>
+                      setActiveImage({
+                        src: item.imageSrc,
+                        alt: item.imageAlt,
+                        title: item.title,
+                      })
+                    }
+                    className="block h-44 w-full bg-muted p-3 transition hover:bg-muted/80"
+                  >
                     <img
                       src={item.imageSrc}
                       alt={item.imageAlt}
-                      className="h-40 w-full object-cover"
+                      className="h-full w-full object-contain"
                       onError={(e): void => {
                         e.currentTarget.style.display = "none";
                       }}
                     />
-                  </div>
+                  </button>
 
                   <div className="p-4">
                     <h4 className="text-sm font-bold md:text-base">{item.title}</h4>
@@ -179,6 +192,20 @@ export default function SampleOutputs({
                       </div>
                     ) : null}
 
+                    <button
+                      type="button"
+                      onClick={(): void =>
+                        setActiveImage({
+                          src: item.imageSrc,
+                          alt: item.imageAlt,
+                          title: item.title,
+                        })
+                      }
+                      className="mt-3 inline-flex w-full justify-center border bg-card px-4 py-2 text-sm font-semibold transition hover:bg-muted"
+                    >
+                      View image
+                    </button>
+
                     {item.linkUrl ? (
                       <a
                         href={item.linkUrl}
@@ -196,18 +223,18 @@ export default function SampleOutputs({
 
             return (
               <div key={item.id} className="overflow-hidden border bg-card shadow-sm">
-                <div className="h-40 w-full bg-muted">
+                <div className="h-44 w-full bg-muted p-3">
                   {item.imageSrc ? (
                     <img
                       src={item.imageSrc}
                       alt={item.imageAlt ?? item.title}
-                      className="h-40 w-full object-cover"
+                      className="h-full w-full object-contain"
                       onError={(e): void => {
                         e.currentTarget.style.display = "none";
                       }}
                     />
                   ) : (
-                    <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
+                    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                       Add screenshot
                     </div>
                   )}
@@ -277,6 +304,31 @@ export default function SampleOutputs({
               <div className="h-[70vh] overflow-hidden border">
                 <GLBViewer src={active3D.glbSrc} />
               </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {activeImage ? (
+        <div className="fixed inset-0 z-[9999] bg-black/60 p-4">
+          <div className="mx-auto mt-6 max-w-5xl overflow-hidden border bg-card shadow-xl">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <h4 className="text-base font-bold">{activeImage.title}</h4>
+              <button
+                type="button"
+                onClick={(): void => setActiveImage(null)}
+                className="border bg-card px-4 py-2 text-sm font-semibold transition hover:bg-muted"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="flex max-h-[80vh] items-center justify-center bg-muted p-4">
+              <img
+                src={activeImage.src}
+                alt={activeImage.alt}
+                className="max-h-[72vh] w-full object-contain"
+              />
             </div>
           </div>
         </div>

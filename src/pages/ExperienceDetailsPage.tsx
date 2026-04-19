@@ -32,13 +32,12 @@ export default function ExperienceDetailsPage(): JSX.Element {
           return;
         }
 
-        // ✅ hardcode only models (GLBs) from public/
         const overrides = MODEL_OVERRIDES[exp.id];
         setExperience({
           ...exp,
           models: overrides,
         });
-      } finally { 
+      } finally {
         if (cancelled) return;
         setLoading(false);
       }
@@ -52,7 +51,9 @@ export default function ExperienceDetailsPage(): JSX.Element {
   if (loading) {
     return (
       <div className="min-h-screen px-5 py-10 md:px-8">
-        <div className="mx-auto max-w-6xl text-sm text-gray-600">Loading…</div>
+        <div className="mx-auto max-w-6xl text-sm text-foreground/70">
+          Loading...
+        </div>
       </div>
     );
   }
