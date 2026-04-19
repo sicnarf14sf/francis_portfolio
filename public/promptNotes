@@ -86,3 +86,38 @@ Mobile
 2. Resize the Get to know me, Send Email, etc. buttons to properly fit the mobile view
 
 3. Nest the skills within one container. Same goes for education and experiences.
+
+
+Experience Page
+General
+1. do not use rounded-edges anymore (make everything look sleek and pro)
+2. Use a different font color instead of grey
+3. position to center the experience image cards 
+4. position the tags to be center also
+
+
+Desktop
+1. Divide the main container into 2 parts/columns
+    - left : Experience Images and the image cards. The main reason for this is to reduce the width since most images are portrait though there are landscape ones. Just make sure to make the UI friendly for both landscape and portrait oriented images.
+    - right : "What I did" section. 
+2.  Place the "Back to project" button on the bottom-center portion of the page
+
+Mobile
+1. Retain everything as is. Just place the "Back to project" button on the bottom-center.
+
+Admin Page
+About Section
+1. Divide the first row into two
+    - left About Page Content
+    - Right About Photo Carousel.
+
+Admin Page
+About Outputs Library
+1. Project / app should have an option for the user to add a thumbnail
+
+About Me Page 
+1. Scale down the thumbnail images of 3D models so they will not be cropped out. Same goes for the images/designs, and projects/app. 
+2. In the Images/designs, make sure the image is viewable/clickable by the user which they can also close (for viewing purposes only)
+
+
+
