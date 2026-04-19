@@ -6,6 +6,7 @@ import AboutPage from "./pages/AboutPage";
 import ExperienceDetailsPage from "./pages/ExperienceDetailsPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import RequireAdmin from "./components/admin/RequireAdmin";
 
 export default function App(): JSX.Element {
   return (
@@ -18,7 +19,14 @@ export default function App(): JSX.Element {
 
       {/* Hidden admin routes (not linked anywhere) */}
       <Route path="/admin" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route
+        path="/admin/dashboard"
+        element={
+          <RequireAdmin>
+            <AdminDashboard />
+          </RequireAdmin>
+        }
+      />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

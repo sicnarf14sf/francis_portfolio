@@ -1,29 +1,70 @@
-import { useMemo, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import ExperienceDetails from "../components/sections/ExperienceDetails";
-import { EXPERIENCES } from "../data/experiences";
 import type { ExperienceItem } from "../types";
+import { fetchExperienceById } from "../lib/api/experience";
+import { MODEL_OVERRIDES } from "../data/modelOverrides";
 
 export default function ExperienceDetailsPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const experience: ExperienceItem | undefined = useMemo(() => {
-    if (!id) return undefined;
-    return EXPERIENCES.find((e) => e.id === id);
+  const [experience, setExperience] = useState<ExperienceItem | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect((): (() => void) => {
+    let cancelled = false;
+
+    (async (): Promise<void> => {
+      if (!id) {
+        setExperience(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const exp = await fetchExperienceById(id);
+        if (cancelled) return;
+
+        if (!exp) {
+          setExperience(null);
+          return;
+        }
+
+        // ✅ hardcode only models (GLBs) from public/
+        const overrides = MODEL_OVERRIDES[exp.id];
+        setExperience({
+          ...exp,
+          models: overrides,
+        });
+      } finally { 
+        if (cancelled) return;
+        setLoading(false);
+      }
+    })();
+
+    return (): void => {
+      cancelled = true;
+    };
   }, [id]);
 
-  // ✅ Render a redirect instead of calling navigate() during render
-  if (!experience) {
-    return <Navigate to="/" replace />;
+  if (loading) {
+    return (
+      <div className="min-h-screen px-5 py-10 md:px-8">
+        <div className="mx-auto max-w-6xl text-sm text-gray-600">Loading…</div>
+      </div>
+    );
   }
+
+  if (!experience) return <Navigate to="/" replace />;
 
   return (
     <ExperienceDetails
       experience={experience}
       onBack={(): void => {
         navigate(-1);
-      }} // ✅ better UX: go back where they came from
+      }}
     />
   );
 }

@@ -44,7 +44,6 @@ export default function ImageCarousel({
   const onTouchEnd = (): void => {
     const dx: number = deltaXRef.current;
 
-    // Threshold: swipe at least 50px
     if (dx > 50) goPrev();
     else if (dx < -50) goNext();
 
@@ -54,48 +53,47 @@ export default function ImageCarousel({
 
   if (count === 0) {
     return (
-      <div className="flex h-72 items-center justify-center rounded-xl border bg-gray-50 text-sm text-gray-500">
-        Add 3–5 images to display here.
+      <div className="mx-auto flex h-64 max-w-3xl items-center justify-center rounded-lg border bg-muted text-sm text-muted-foreground">
+        Add 3-5 images to display here.
       </div>
     );
   }
 
   return (
-    <div className="w-full lg:w-1/2 mx-auto">
-      {/* Swipe area */}
+    <div className="mx-auto w-full max-w-3xl">
       <div
-        className="relative overflow-hidden rounded-xl border"
+        className="relative overflow-hidden rounded-lg border bg-card shadow-sm"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Track */}
         <div
           className="flex transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${safeIndex * 100}%)` }}
         >
           {images.map((img: CarouselImage) => (
-            <div key={img.src} className="w-full shrink-0 flex justify-center">
-              {/* Frame matches the image area exactly (no background) */}
-              <div className="w-full lg:w-1/2 aspect-square overflow-hidden rounded-xl border">
+            <div
+              key={img.src}
+              className="flex w-full shrink-0 justify-center bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.12),_transparent_60%)] p-3 md:p-4"
+            >
+              <div className="w-full max-w-2xl overflow-hidden rounded-md border bg-muted/80">
                 <img
                   src={img.src}
                   alt={img.alt}
                   draggable={false}
-                  className="h-full w-full object-cover"
+                  className="h-[18rem] w-full object-cover bg-muted md:h-[21rem] md:object-contain"
                 />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Controls */}
         {count > 1 ? (
           <>
             <button
               type="button"
               onClick={goPrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-xl border bg-white/90 px-3 py-2 text-sm font-semibold hover:bg-white transition"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-md border bg-card/90 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur transition hover:bg-muted md:left-4"
               aria-label="Previous image"
             >
               Prev
@@ -104,7 +102,7 @@ export default function ImageCarousel({
             <button
               type="button"
               onClick={goNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border bg-white/90 px-3 py-2 text-sm font-semibold hover:bg-white transition"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border bg-card/90 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur transition hover:bg-muted md:right-4"
               aria-label="Next image"
             >
               Next
@@ -113,7 +111,6 @@ export default function ImageCarousel({
         ) : null}
       </div>
 
-      {/* Dots */}
       {count > 1 ? (
         <div className="mt-3 flex items-center justify-center gap-2">
           {images.map((_: CarouselImage, i: number) => (
@@ -124,17 +121,16 @@ export default function ImageCarousel({
               onClick={(): void => setIndex(i)}
               className={`h-2 w-2 rounded-full transition ${
                 i === safeIndex
-                  ? "bg-gray-900"
-                  : "bg-gray-300 hover:bg-gray-400"
+                  ? "bg-foreground"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
               }`}
             />
           ))}
         </div>
       ) : null}
 
-      {/* Small hint (mobile) */}
       {count > 1 ? (
-        <p className="mt-2 text-center text-xs text-gray-500">
+        <p className="mt-2 text-center text-xs text-muted-foreground md:hidden">
           Swipe left/right to browse photos
         </p>
       ) : null}

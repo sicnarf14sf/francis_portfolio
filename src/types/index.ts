@@ -18,6 +18,54 @@ export type CarouselImage = {
   alt: string;
 };
 
+export type AboutPageContent = {
+  title: string;
+  intro: string;
+};
+
+export type RecommendationItem = {
+  id: string;
+  name: string;
+  role: string;
+  organization: string;
+  recommendation: string;
+};
+
+export type SampleOutputKind = "3d" | "image" | "app";
+
+export type SampleOutputBase = {
+  id: string;
+  kind: SampleOutputKind;
+  title: string;
+  description?: string;
+  tags?: string[];
+};
+
+export type SampleOutput3D = SampleOutputBase & {
+  kind: "3d";
+  glbSrc: string;
+  previewSrc?: string;
+};
+
+export type SampleOutputImage = SampleOutputBase & {
+  kind: "image";
+  imageSrc: string;
+  imageAlt: string;
+  linkUrl?: string;
+};
+
+export type SampleOutputApp = SampleOutputBase & {
+  kind: "app";
+  imageSrc?: string;
+  imageAlt?: string;
+  linkUrl?: string;
+};
+
+export type SampleOutputItem =
+  | SampleOutput3D
+  | SampleOutputImage
+  | SampleOutputApp;
+
 export type ImageCarouselProps = {
   images: CarouselImage[];
 };
@@ -43,9 +91,8 @@ export type ExperienceModel = {
   title: string;
   previewSrc?: string;   // optional thumbnail
   glbSrc?: string;       // ✅ local/public URL to the .glb file
-  embedUrl?: string;     // optional iframe
-  linkUrl?: string;      // optional external link
   scientificName?: string;
+  notes?: string;
 };
 
 
@@ -55,6 +102,8 @@ export type ExperienceItem = {
   title: string;
   org: string;
   date: string;
+  thumbnailSrc?: string;
+  thumbnailAlt?: string;
 
   /** Ready for a carousel: multiple images */
   images: Array<{

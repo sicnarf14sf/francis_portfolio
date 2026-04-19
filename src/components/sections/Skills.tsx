@@ -2,7 +2,11 @@ import { type JSX } from "react";
 import SectionHeader from "../layout/SectionHeader";
 import { FaGears } from "react-icons/fa6";
 
-export default function Skills(): JSX.Element {
+export default function Skills({
+  compact = false,
+}: {
+  compact?: boolean;
+}): JSX.Element {
   const SKILLS: Array<{ title: string; items: string[] }> = [
     {
       title: "Web & Application Development",
@@ -46,25 +50,32 @@ export default function Skills(): JSX.Element {
   ];
 
   return (
-    <section className="py-1" id="skills">
+    <section className={compact ? "" : "py-1"} id="skills">
       <SectionHeader
         title="Skills"
         subtitle="Tools and strengths I use to build web, AI, and 3D-focused projects."
         icon={FaGears}
         variant="skills"
+        compact={compact}
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className={`grid grid-cols-1 gap-3 ${compact ? "md:grid-cols-1" : "md:grid-cols-2"}`}>
         {SKILLS.map((group) => (
           <div
             key={group.title}
-            className="rounded-xl border bg-white p-5 shadow-sm hover:shadow-md transition"
+            className={`border bg-card shadow-sm transition hover:shadow-md ${
+              compact ? "rounded-md p-3" : "rounded-lg p-4"
+            }`}
           >
-            <h3 className="text-base font-bold md:text-lg">{group.title}</h3>
-            <ul className="mt-3 space-y-2 text-sm text-gray-700 md:text-base">
+            <h3 className="text-sm font-bold md:text-base">{group.title}</h3>
+            <ul
+              className={`text-sm text-muted-foreground ${
+                compact ? "mt-2 space-y-1.5 leading-5" : "mt-3 space-y-2 leading-6"
+              }`}
+            >
               {group.items.map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span className="mt-2 inline-block h-2 w-2 shrink-0 rounded-full bg-gray-400" />
+                  <span className="mt-2 inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground" />
                   <span>{item}</span>
                 </li>
               ))}

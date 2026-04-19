@@ -1,0 +1,48 @@
+1. default always to light mode
+2. make the dark mode transition smoother
+3. redesign the get to know me button: make it centered but avoid making it too long when on desktop mode
+
+4. make the dark mode toggle button place on the farthest left and the hamburger icon on the far right.
+
+Admin Part
+
+1. Add a "present" option on the Add/Edit experience part.
+2. Fix the UI of the Choose Files and Upload Images buttons on the Experience Admin part by making them more visible and readable.
+3. Fix the UI of the Delete button on the Experience Admin part by making it more visible and readable and always ask for confirmation before deleting.
+
+4. Thumbnail image for the work experience should be a separate image from the work experience images. You can implement this by adding a new field to the experience table called "thumbnail_image".
+5. when uploading images, there should be a progress bar to show the progress of the upload.
+
+
+About Outputs Library
+1. remove this placeholder:
+    Output id is generated automatically from the title when you save. Current id: app-marine-biodiversity-database
+2. When displaying database items, refer to the active sample output type (3D models, images/designs, Project links) and only display items those of the same active sample output type selected.
+3. remove this placeholder:
+    No model uploaded yet. Choose a `.glb` or `.gltf` file below, then save the item once
+4. the photos in the about photos are displayed too widely and I want them to be smaller so that they dont take up the entire width. Please redesign this portion again. 
+
+About me Page
+1. Though the about photos display properly when in mobile device, the photos are somehow cropped when viewed in desktop. Please fix this behavior by maybe making it somehow dynamic?
+
+2. When viewing in desktop mode, please hide the 'Swipe left/right to browse photos' helper since the swiping action cannot be done in desktop. Only show it when user is using a mobile device.
+
+Homepage
+1. get to know me button - add a profile icon or an icom that best suits for the button
+2. add a send email button on the first part of the page upon opening.
+3. add a 'recommendations' section on the homepage - also add this option in the admin page and provide the appropriate sql snippet to run
+4. try to make everything seemingly compact in design (no long scrolls and more professional looking). Rounded edges of the cards should also be considered for redesigning into something sharp for more professional look. I expect the contents to somehow be displayed in smaller font-sizes and a more compact arrangement for employers to appreciate the design towards being considering of their time. 
+
+1. Since we no longer need scrolling, I think we can safely remove the nav bar on the desktop nav and move the dark mode button somewhere else proper (you choose where). Though, on the device mode, retain the navbar since there is more scrolling involved. 
+2. Rearrange the items please. The massive whitespace below the skills portion is very annoying. 
+3. The whitespace between the hero image and the 'Hi, I'm Francis' is also very space-consuming and eye-sore, please consider rearranging this portion.
+
+1. rearrange the first two items (photo and introduction) and make them more compact.
+2. move the dark mode toggle to the footer
+3. remove the background outline of the hero image.
+
+
+1. Can you please scale up the image to be of the same height as the item next to it.
+2. Add github and linkedIn button links next to send email button
+3. sharpen the rounded edges 
+4. Implement similar changes (compacting) to the other pages of the portfolio. 
