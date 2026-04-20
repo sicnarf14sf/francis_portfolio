@@ -45,6 +45,7 @@ export default function ExperienceDetails({
                     <img
                       src={activeImage.src}
                       alt={activeImage.alt}
+                      decoding="async"
                       className="h-64 w-full object-contain md:h-72 xl:h-[32rem]"
                       onError={(e): void => {
                         e.currentTarget.style.display = "none";
@@ -96,6 +97,8 @@ export default function ExperienceDetails({
                       <img
                         src={img.src}
                         alt={img.alt}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover"
                       />
                     </button>

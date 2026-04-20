@@ -20,12 +20,12 @@ export default function Home({
 }): JSX.Element {
   const [showContent, setShowContent] = useState<boolean>(false);
   const [heroImageSrc, setHeroImageSrc] = useState<string>(() =>
-    getHomeHeroImageUrl(true),
+    getHomeHeroImageUrl(false),
   );
 
   useEffect((): void => {
     setShowContent(true);
-    setHeroImageSrc(getHomeHeroImageUrl(true));
+    setHeroImageSrc(getHomeHeroImageUrl(false));
   }, []);
 
   if (!showContent) {
@@ -45,6 +45,9 @@ export default function Home({
         <img
           src={heroImageSrc}
           alt="Francis working on projects"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           className="h-auto w-full max-w-[12rem] object-cover md:h-full md:max-w-none md:object-cover"
           onError={(): void => {
             setHeroImageSrc(fallbackHeroImage);

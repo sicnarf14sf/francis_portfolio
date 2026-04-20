@@ -31,6 +31,8 @@ export default function Experience({
               <img
                 src={exp.thumbnailSrc ?? exp.images[0]?.src ?? ""}
                 alt={exp.thumbnailAlt ?? exp.images[0]?.alt ?? exp.title}
+                loading="lazy"
+                decoding="async"
                 className={`${compact ? "h-28" : "h-40"} w-full object-contain md:object-scale-down`}
                 onError={(e): void => {
                   e.currentTarget.style.display = "none";

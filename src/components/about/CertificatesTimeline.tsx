@@ -50,6 +50,8 @@ export default function CertificatesTimeline({
               <img
                 src={item.imageSrc}
                 alt={item.imageAlt}
+                loading="lazy"
+                decoding="async"
                 className="h-[5.5rem] w-full object-contain"
                 onError={(e): void => {
                   e.currentTarget.style.display = "none";
@@ -108,6 +110,7 @@ export default function CertificatesTimeline({
                 <img
                   src={activeCertificate.imageSrc}
                   alt={activeCertificate.imageAlt}
+                  decoding="async"
                   className="max-h-[75vh] w-full object-contain"
                 />
               </div>

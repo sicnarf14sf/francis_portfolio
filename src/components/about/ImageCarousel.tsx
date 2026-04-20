@@ -81,6 +81,8 @@ export default function ImageCarousel({
                   src={img.src}
                   alt={img.alt}
                   draggable={false}
+                  loading={safeIndex === 0 ? "eager" : "lazy"}
+                  decoding="async"
                   className="h-[22rem] w-full object-cover object-top bg-muted md:h-[25rem]"
                 />
               </div>

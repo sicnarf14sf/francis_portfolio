@@ -115,6 +115,8 @@ export default function SampleOutputs({
                       <img
                         src={item.previewSrc}
                         alt={item.title}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-contain"
                         onError={(e): void => {
                           e.currentTarget.style.display = "none";
@@ -173,6 +175,8 @@ export default function SampleOutputs({
                     <img
                       src={item.imageSrc}
                       alt={item.imageAlt}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-contain"
                       onError={(e): void => {
                         e.currentTarget.style.display = "none";
@@ -237,6 +241,8 @@ export default function SampleOutputs({
                     <img
                       src={item.imageSrc}
                       alt={item.imageAlt ?? item.title}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-contain"
                       onError={(e): void => {
                         e.currentTarget.style.display = "none";
@@ -338,6 +344,7 @@ export default function SampleOutputs({
               <img
                 src={activeImage.src}
                 alt={activeImage.alt}
+                decoding="async"
                 className="max-h-[72vh] w-full object-contain"
               />
             </div>
