@@ -57,7 +57,7 @@ export default function HomePage(): JSX.Element {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col pr-5 pl-5 bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background pr-5 pl-5 text-foreground">
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur md:hidden">
         <div className="mx-auto flex h-16 max-w-6xl items-center px-4">
           <div className="flex-1">
@@ -71,7 +71,7 @@ export default function HomePage(): JSX.Element {
           <main className="mx-auto w-full max-w-6xl px-4 page-enter md:pt-4">
             {loading ? (
               <div className="py-10 text-sm text-muted-foreground">
-                Loading content…
+                Loading content...
               </div>
             ) : errorMsg ? (
               <div className="py-10">

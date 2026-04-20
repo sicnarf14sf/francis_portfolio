@@ -34,7 +34,7 @@ export default function Recommendations({
             <div className={`${compact ? "mt-3 pt-2" : "mt-4 pt-3"} border-t`}>
               <h3 className="text-sm font-semibold">{item.name}</h3>
               <p className="mt-1 text-xs text-foreground/65">
-                {[item.role, item.organization].filter(Boolean).join(" • ")}
+                {[item.role, item.organization].filter(Boolean).join(" | ")}
               </p>
             </div>
           </article>

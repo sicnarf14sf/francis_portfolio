@@ -31,8 +31,8 @@ export default function ExperienceDetails({
           <h2 className="text-2xl font-bold md:text-[2rem]">{experience.title}</h2>
           <p className="mt-1 text-sm text-foreground/72">
             <span className="font-medium text-foreground">{experience.org}</span>
-            <span> • {experience.details.role}</span>
-            <span> • {experience.date}</span>
+            <span> | {experience.details.role}</span>
+            <span> | {experience.date}</span>
           </p>
         </div>
 

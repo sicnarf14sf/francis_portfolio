@@ -30,7 +30,7 @@ export default function Education({
                 <h3 className="text-sm font-bold md:text-base">{edu.school}</h3>
                 <p className={`mt-1 text-foreground/75 ${compact ? "text-xs" : "text-sm"}`}>
                   <span className="font-medium">{edu.program}</span>
-                  <span className="text-foreground/65"> • {edu.year}</span>
+                  <span className="text-foreground/65"> | {edu.year}</span>
                 </p>
               </div>
 

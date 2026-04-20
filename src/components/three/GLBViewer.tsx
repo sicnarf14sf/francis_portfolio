@@ -25,7 +25,7 @@ function LoadingOverlay(): JSX.Element {
   return (
     <Html center>
       <div className="rounded-xl border bg-white px-4 py-3 text-xs font-semibold text-gray-700 shadow-sm">
-        Loading 3D model…
+        Loading 3D model...
       </div>
     </Html>
   );
@@ -51,7 +51,7 @@ function ModelWithAutoFit({ src, onFitted }: ModelWithAutoFitProps): JSX.Element
   const fittedOnceRef = useRef<boolean>(false);
 
   useLayoutEffect(() => {
-    // ✅ run once per model src
+    // Reset the one-time fit when the active model changes.
     fittedOnceRef.current = false;
   }, [src]);
 
@@ -85,7 +85,7 @@ function ModelWithAutoFit({ src, onFitted }: ModelWithAutoFitProps): JSX.Element
 
     onFitted({ camPos: newCamPos.clone(), target: center.clone() });
 
-    fittedOnceRef.current = true; // ✅ prevents loops
+    fittedOnceRef.current = true;
     invalidate();
   }, [camera, gltf.scene, invalidate, onFitted]);
 
@@ -106,7 +106,6 @@ function Scene({ src, enableAutoRotate }: SceneProps): JSX.Element {
 
   const [fittedView, setFittedView] = useState<ViewState | null>(null);
 
-  // Once we have a fitted view, apply target to controls
   useEffect(() => {
     if (!fittedView) return;
     const controls = controlsRef.current;
@@ -138,13 +137,10 @@ function Scene({ src, enableAutoRotate }: SceneProps): JSX.Element {
       <directionalLight position={[3, 4, 2]} intensity={0.9} />
       <Environment preset="sunset" />
 
-      {/* Model + auto-fit */}
       <ModelWithAutoFit src={src} onFitted={setFittedView} />
 
-      {/* Controls */}
       <OrbitControls
         ref={(ref) => {
-          // drei OrbitControls ref type isn't perfectly strict; we store minimal methods we use.
           controlsRef.current = ref as unknown as
             | (THREE.EventDispatcher & {
                 target: THREE.Vector3;
@@ -157,13 +153,12 @@ function Scene({ src, enableAutoRotate }: SceneProps): JSX.Element {
         autoRotateSpeed={1.0}
       />
 
-      {/* Reset button overlay */}
       <Html position={[0, 0, 0]} fullscreen>
         <div className="pointer-events-none absolute right-3 top-3">
           <button
             type="button"
             onClick={resetView}
-            className="pointer-events-auto rounded-xl border bg-white/90 px-3 py-2 text-xs font-semibold text-gray-800 shadow-sm hover:bg-white transition"
+            className="pointer-events-auto rounded-xl border bg-white/90 px-3 py-2 text-xs font-semibold text-gray-800 shadow-sm transition hover:bg-white"
             disabled={!fittedView}
           >
             Reset view
@@ -180,7 +175,7 @@ export default function GLBViewer({
 }: GLBViewerProps): JSX.Element {
   return (
     <Canvas
-      // ✅ big stability wins:
+      // Keep the viewer stable and lighter than the default Three.js setup.
       frameloop="demand"
       dpr={[1, 1.5]}
       gl={{
@@ -189,12 +184,10 @@ export default function GLBViewer({
         powerPreference: "low-power",
         preserveDrawingBuffer: false,
       }}
-      // shadows are expensive; enable later if you really need them
       shadows={false}
       camera={{ position: [0, 0, 2.5], fov: 45 }}
       className="h-full w-full"
       onCreated={({ gl }) => {
-        // Optional: avoid super high pixel ratio spikes
         gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       }}
     >

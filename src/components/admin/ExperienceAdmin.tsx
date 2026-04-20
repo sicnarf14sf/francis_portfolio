@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type JSX } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { getPublicUrl } from "../../lib/storage";
+import { validateImageFiles } from "../../lib/uploadValidation";
 
 type DbExperience = {
   id: string;
@@ -65,9 +66,34 @@ export default function ExperienceAdmin(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [imgLoading, setImgLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(
     null,
   );
+
+  const onSelectThumbnailFile = (file: File | null): void => {
+    const result = validateImageFiles(file ? [file] : [], "Thumbnail image");
+    if (!result.ok) {
+      setErrorMsg(result.error);
+      setPendingThumbnailFile(null);
+      return;
+    }
+
+    setErrorMsg(null);
+    setPendingThumbnailFile(file);
+  };
+
+  const onSelectGalleryFiles = (files: File[]): void => {
+    const result = validateImageFiles(files, "Gallery images");
+    if (!result.ok) {
+      setErrorMsg(result.error);
+      setPendingFiles([]);
+      return;
+    }
+
+    setErrorMsg(null);
+    setPendingFiles(files);
+  };
 
   const [title, setTitle] = useState<string>("");
   const [org, setOrg] = useState<string>("");
@@ -87,6 +113,7 @@ export default function ExperienceAdmin(): JSX.Element {
   const loadExperiences = async (): Promise<void> => {
     setLoading(true);
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     const { data, error } = await supabase
       .from("experience")
@@ -113,6 +140,7 @@ export default function ExperienceAdmin(): JSX.Element {
   const loadImages = async (experienceId: string): Promise<void> => {
     setImgLoading(true);
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     const { data, error } = await supabase
       .from("experience_images")
@@ -224,6 +252,7 @@ export default function ExperienceAdmin(): JSX.Element {
 
   const onCreate = async (): Promise<void> => {
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     if (!canAddExperience) {
       setErrorMsg(
@@ -263,6 +292,7 @@ export default function ExperienceAdmin(): JSX.Element {
 
     clearForm();
     await loadExperiences();
+    setSuccessMsg("Experience added.");
   };
 
   const confirmDeleteExperience = (expTitle: string): boolean => {
@@ -284,6 +314,7 @@ export default function ExperienceAdmin(): JSX.Element {
     if (!confirmDeleteExperience(expTitle)) return;
 
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     const imagePaths = images
       .filter((img) => img.experience_id === id && isStoragePath(img.path))
@@ -311,12 +342,14 @@ export default function ExperienceAdmin(): JSX.Element {
       setSelectedId(null);
     }
     await loadExperiences();
+    setSuccessMsg("Experience deleted.");
   };
 
   const onUploadImages = async (): Promise<void> => {
     if (!selected || pendingFiles.length === 0) return;
 
     setErrorMsg(null);
+    setSuccessMsg(null);
     setImgLoading(true);
     setUploadProgress({ label: "Uploading gallery images", percent: 0 });
 
@@ -364,6 +397,7 @@ export default function ExperienceAdmin(): JSX.Element {
       await loadImages(selected.id);
       setPendingFiles([]);
       setUploadProgress({ label: "Uploading gallery images", percent: 100 });
+      setSuccessMsg("Gallery images uploaded.");
     } catch (err) {
       console.error("UPLOAD ERROR FULL:", err);
       setErrorMsg(err instanceof Error ? err.message : JSON.stringify(err));
@@ -377,6 +411,7 @@ export default function ExperienceAdmin(): JSX.Element {
     if (!selected || !pendingThumbnailFile) return;
 
     setErrorMsg(null);
+    setSuccessMsg(null);
     setImgLoading(true);
     setUploadProgress({ label: "Uploading thumbnail", percent: 0 });
 
@@ -406,6 +441,7 @@ export default function ExperienceAdmin(): JSX.Element {
       setPendingThumbnailFile(null);
       await loadExperiences();
       setUploadProgress({ label: "Uploading thumbnail", percent: 100 });
+      setSuccessMsg("Thumbnail uploaded.");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Thumbnail upload failed.");
     } finally {
@@ -423,6 +459,7 @@ export default function ExperienceAdmin(): JSX.Element {
     if (!confirmed) return;
 
     setErrorMsg(null);
+    setSuccessMsg(null);
     setImgLoading(true);
 
     try {
@@ -436,6 +473,7 @@ export default function ExperienceAdmin(): JSX.Element {
 
       await removeStorageObject(currentThumbnail);
       await loadExperiences();
+      setSuccessMsg("Thumbnail removed.");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to remove thumbnail.");
     } finally {
@@ -448,6 +486,7 @@ export default function ExperienceAdmin(): JSX.Element {
     if (!selected) return;
 
     setErrorMsg(null);
+    setSuccessMsg(null);
     setImgLoading(true);
 
     try {
@@ -460,6 +499,7 @@ export default function ExperienceAdmin(): JSX.Element {
 
       await removeStorageObject(img.path);
       await loadImages(selected.id);
+      setSuccessMsg("Gallery image deleted.");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Delete failed.");
     } finally {
@@ -481,6 +521,7 @@ export default function ExperienceAdmin(): JSX.Element {
     setSortOrder(selected.sort_order ?? 0);
     setEditLoaded(true);
     setErrorMsg(null);
+    setSuccessMsg(null);
   };
 
   const onUpdateSelected = async (): Promise<void> => {
@@ -499,6 +540,7 @@ export default function ExperienceAdmin(): JSX.Element {
     if (!confirmUpdateExperience(selected.title)) return;
 
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     const tagsArr: string[] = tagsText
       .split(",")
@@ -530,7 +572,7 @@ export default function ExperienceAdmin(): JSX.Element {
     }
 
     await loadExperiences();
-    setErrorMsg("Experience updated successfully.");
+    setSuccessMsg("Experience updated.");
     setEditLoaded(false);
   };
 
@@ -540,6 +582,7 @@ export default function ExperienceAdmin(): JSX.Element {
   ): Promise<void> => {
     if (!selected) return;
     setErrorMsg(null);
+    setSuccessMsg(null);
 
     const payload: Record<string, unknown> = {};
     if (patch.alt !== undefined) {
@@ -568,6 +611,7 @@ export default function ExperienceAdmin(): JSX.Element {
   ): Promise<void> => {
     if (!selected) return;
     setErrorMsg(null);
+    setSuccessMsg(null);
     setImgLoading(true);
 
     try {
@@ -613,6 +657,7 @@ export default function ExperienceAdmin(): JSX.Element {
     setPendingThumbnailFile(null);
     setEditLoaded(false);
     setErrorMsg(null);
+    setSuccessMsg(null);
   };
 
   const normalizeCsv = (s: string): string =>
@@ -680,6 +725,37 @@ export default function ExperienceAdmin(): JSX.Element {
               {errorMsg}
             </div>
           ) : null}
+
+          {successMsg ? (
+            <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+              {successMsg}
+            </div>
+          ) : null}
+
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border bg-gray-50 p-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+                Experiences
+              </div>
+              <div className="mt-2 text-2xl font-bold text-gray-900">{items.length}</div>
+            </div>
+            <div className="rounded-xl border bg-gray-50 p-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+                Selected
+              </div>
+              <div className="mt-2 text-sm font-semibold text-gray-900">
+                {selected?.title ?? "No experience selected"}
+              </div>
+            </div>
+            <div className="rounded-xl border bg-gray-50 p-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+                Pending uploads
+              </div>
+              <div className="mt-2 text-sm font-semibold text-gray-900">
+                {pendingFiles.length} gallery | {pendingThumbnailFile ? "1 thumbnail" : "0 thumbnail"}
+              </div>
+            </div>
+          </div>
 
           <div className="mt-4 space-y-3">
             <input
@@ -845,7 +921,7 @@ export default function ExperienceAdmin(): JSX.Element {
                       <div>
                         <div className="font-semibold">{it.title}</div>
                         <div className="text-sm text-gray-600">
-                          {it.org} • {it.role}
+                          {it.org} | {it.role}
                         </div>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {it.thumbnail_image ? (
@@ -949,7 +1025,7 @@ export default function ExperienceAdmin(): JSX.Element {
                   accept="image/*"
                   className="sr-only"
                   onChange={(e): void =>
-                    setPendingThumbnailFile(e.target.files?.[0] ?? null)
+                    onSelectThumbnailFile(e.target.files?.[0] ?? null)
                   }
                 />
                 {pendingThumbnailFile
@@ -988,7 +1064,9 @@ export default function ExperienceAdmin(): JSX.Element {
                   multiple
                   className="sr-only"
                   onChange={(e): void =>
-                    setPendingFiles(e.target.files ? Array.from(e.target.files) : [])
+                    onSelectGalleryFiles(
+                      e.target.files ? Array.from(e.target.files) : [],
+                    )
                   }
                 />
                 {pendingFiles.length > 0

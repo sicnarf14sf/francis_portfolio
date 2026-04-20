@@ -1,5 +1,6 @@
 import { useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
+import { checkAdminAccess } from "../lib/adminAuth";
 import { supabase } from "../lib/supabaseClient";
 
 export default function AdminLogin(): JSX.Element {
@@ -15,15 +16,24 @@ export default function AdminLogin(): JSX.Element {
     setLoading(true);
     setErrorMsg(null);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    setLoading(false);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
+      setLoading(false);
       setErrorMsg(error.message);
       return;
     }
 
+    const access = await checkAdminAccess(supabase, data.session);
+
+    if (!access.allowed) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setErrorMsg(access.reason);
+      return;
+    }
+
+    setLoading(false);
     navigate("/admin/dashboard", { replace: true });
   };
 
@@ -33,7 +43,7 @@ export default function AdminLogin(): JSX.Element {
         <div className="border-b bg-gray-50 px-5 py-4">
           <h1 className="text-xl font-bold">Admin Login</h1>
           <p className="mt-1 text-xs text-gray-600">
-            Hidden route. Sign in with your Supabase Auth user.
+            Sign in with an approved Supabase admin account.
           </p>
         </div>
 
@@ -58,7 +68,7 @@ export default function AdminLogin(): JSX.Element {
               value={password}
               onChange={(e): void => setPassword(e.target.value)}
               className="mt-1 w-full rounded-xl border px-3 py-2 text-sm"
-              placeholder="••••••••"
+              placeholder="Password"
             />
           </div>
 
@@ -73,7 +83,7 @@ export default function AdminLogin(): JSX.Element {
             disabled={loading}
             className="w-full rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
 
           <button

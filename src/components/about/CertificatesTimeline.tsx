@@ -90,7 +90,7 @@ export default function CertificatesTimeline({
                   {activeCertificate.title}
                 </h4>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {activeCertificate.org} • {activeCertificate.year}
+                  {activeCertificate.org} | {activeCertificate.year}
                 </p>
               </div>
 

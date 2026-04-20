@@ -1,5 +1,4 @@
-import { useEffect, useState, type JSX } from "react";
-import GLBViewer from "../three/GLBViewer";
+import { lazy, Suspense, useEffect, useState, type JSX, type ReactNode } from "react";
 import SectionHeader from "../layout/SectionHeader";
 import type {
   SampleOutput3D,
@@ -9,6 +8,8 @@ import type {
   SampleOutputKind,
 } from "../../types";
 
+const GLBViewer = lazy(() => import("../three/GLBViewer"));
+
 const is3D = (output: SampleOutputItem): output is SampleOutput3D =>
   output.kind === "3d";
 
@@ -17,6 +18,14 @@ const isImage = (output: SampleOutputItem): output is SampleOutputImage =>
 
 const isApp = (output: SampleOutputItem): output is SampleOutputApp =>
   output.kind === "app";
+
+function ViewerFallback(): JSX.Element {
+  return (
+    <div className="flex h-full items-center justify-center bg-muted text-sm text-muted-foreground">
+      Loading 3D viewer...
+    </div>
+  );
+}
 
 export default function SampleOutputs({
   outputs,
@@ -302,7 +311,9 @@ export default function SampleOutputs({
 
             <div className="p-4">
               <div className="h-[70vh] overflow-hidden border">
-                <GLBViewer src={active3D.glbSrc} />
+                <Suspense fallback={<ViewerFallback />}>
+                  <GLBViewer src={active3D.glbSrc} />
+                </Suspense>
               </div>
             </div>
           </div>
@@ -344,7 +355,7 @@ function TabButton({
 }: {
   active: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }): JSX.Element {
   return (
     <button

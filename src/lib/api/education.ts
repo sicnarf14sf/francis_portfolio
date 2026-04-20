@@ -1,4 +1,3 @@
-// src/lib/api/education.ts
 import { supabase } from "../supabaseClient";
 
 export type EducationItem = {
@@ -27,7 +26,7 @@ export const fetchEducation = async (): Promise<EducationItem[]> => {
   return (data ?? []).map((row: any) => {
     const year =
       row.year_end && row.year_end !== row.year_start
-        ? `${row.year_start}–${row.year_end}`
+        ? `${row.year_start}-${row.year_end}`
         : `${row.year_start}`;
 
     return {

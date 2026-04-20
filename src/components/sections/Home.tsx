@@ -1,8 +1,16 @@
 import { useEffect, useState, type JSX } from "react";
-import { FaEnvelope, FaGithub, FaLinkedin, FaUserTie } from "react-icons/fa6";
+import {
+  FaLocationDot,
+  FaEnvelope,
+  FaGithub,
+  FaLinkedin,
+  FaUserTie,
+} from "react-icons/fa6";
 
-const heroImage: string = new URL("../../assets/hero_image.JPG", import.meta.url)
-  .href;
+const heroImage: string = new URL(
+  "../../assets/hero_image.JPG",
+  import.meta.url,
+).href;
 
 export default function Home({
   onGetToKnowMe,
@@ -91,10 +99,14 @@ export default function Home({
 
         <div className="order-3 md:order-2">
           <h1 className="mt-2 text-center text-3xl font-bold leading-tight md:text-left md:text-[2.85rem]">
-            Hi, I&apos;m Francis.
+            Hi, I&apos;m Francis
           </h1>
-          <h2 className="mt-1.5 text-center text-base text-foreground/80 md:text-left md:text-lg">
-            Software Developer | 3D Artist | Researcher | Philippine Based
+          <h2 className="mt-1.5 flex flex-col items-center gap-1 text-center text-base text-foreground/80 md:items-start md:text-left md:text-lg">
+            <span className="inline-flex items-center gap-2">
+              <FaLocationDot className="h-4 w-4" />
+              <span>Davao City, Philippines</span>
+            </span>
+            <span>Software Developer | 3D Artist | Researcher</span>
           </h2>
           <p className="mt-2.5 text-center text-sm leading-6 text-foreground/75 md:text-left md:text-[14px]">
             I create solutions at the intersection of marine science, education,

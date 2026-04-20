@@ -70,6 +70,7 @@ export default function RecommendationsAdmin(): JSX.Element {
     setOrganization("");
     setRecommendation("");
     setSortOrder(0);
+    setSuccessMsg(null);
   };
 
   const loadIntoForm = (item: DbRecommendation): void => {
@@ -152,21 +153,55 @@ export default function RecommendationsAdmin(): JSX.Element {
   };
 
   return (
-    <div className="rounded-lg border p-4">
-      <div className="flex items-center justify-between gap-3">
+    <div className="rounded-2xl border bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-base font-semibold text-gray-900">Recommendations</h2>
           <p className="mt-1 text-xs text-gray-500">
             Manage homepage recommendations and keep the section concise.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={clearForm}
-          className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-gray-50"
-        >
-          New recommendation
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={(): void => void loadRecommendations()}
+            className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-gray-50"
+          >
+            Refresh
+          </button>
+          <button
+            type="button"
+            onClick={clearForm}
+            className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-gray-50"
+          >
+            New recommendation
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="rounded-xl border bg-gray-50 p-3">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Total
+          </div>
+          <div className="mt-2 text-2xl font-bold text-gray-900">{items.length}</div>
+        </div>
+        <div className="rounded-xl border bg-gray-50 p-3">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Editing
+          </div>
+          <div className="mt-2 text-sm font-semibold text-gray-900">
+            {selectedId ? name || "Selected recommendation" : "No item selected"}
+          </div>
+        </div>
+        <div className="rounded-xl border bg-gray-50 p-3">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+            Tip
+          </div>
+          <p className="mt-2 text-sm text-gray-700">
+            Lower sort order values appear earlier on the homepage.
+          </p>
+        </div>
       </div>
 
       {errorMsg ? (
@@ -182,7 +217,18 @@ export default function RecommendationsAdmin(): JSX.Element {
       ) : null}
 
       <div className="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <div className="space-y-3 rounded-lg border bg-gray-50/70 p-4">
+        <div className="space-y-3 rounded-xl border bg-gray-50/70 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-sm font-semibold text-gray-900">
+              {selectedId ? "Edit recommendation" : "Create recommendation"}
+            </div>
+            {selectedId ? (
+              <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                Editing existing item
+              </span>
+            ) : null}
+          </div>
+
           <input
             className="w-full rounded-lg border bg-white px-3 py-2 text-sm"
             placeholder="Name"
@@ -210,13 +256,18 @@ export default function RecommendationsAdmin(): JSX.Element {
             value={recommendation}
             onChange={(e): void => setRecommendation(e.target.value)}
           />
-          <input
-            className="w-full rounded-lg border bg-white px-3 py-2 text-sm"
-            type="number"
-            placeholder="Sort order"
-            value={sortOrder}
-            onChange={(e): void => setSortOrder(Number(e.target.value))}
-          />
+          <div className="flex items-center justify-between gap-3">
+            <input
+              className="w-full rounded-lg border bg-white px-3 py-2 text-sm"
+              type="number"
+              placeholder="Sort order"
+              value={sortOrder}
+              onChange={(e): void => setSortOrder(Number(e.target.value))}
+            />
+            <div className="min-w-fit text-xs text-gray-500">
+              {recommendation.trim().length} chars
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -252,12 +303,22 @@ export default function RecommendationsAdmin(): JSX.Element {
             </div>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="rounded-lg border p-3">
+              <div
+                key={item.id}
+                className={`rounded-xl border p-3 transition ${
+                  selectedId === item.id ? "border-gray-900 bg-gray-50" : "bg-white"
+                }`}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-semibold">{item.name}</div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="font-semibold">{item.name}</div>
+                      <span className="rounded-full border bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                        order {item.sort_order}
+                      </span>
+                    </div>
                     <div className="mt-1 text-xs text-gray-500">
-                      {[item.role, item.organization].filter(Boolean).join(" • ")}
+                      {[item.role, item.organization].filter(Boolean).join(" | ")}
                     </div>
                     <p className="mt-2 text-sm text-gray-700">{item.recommendation}</p>
                   </div>

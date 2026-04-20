@@ -41,7 +41,7 @@ export default function Experience({
             <div className={compact ? "p-3" : "p-4"}>
               <h3 className="text-sm font-bold md:text-base">{exp.title}</h3>
               <p className="mt-1 text-xs text-foreground/70">
-                {exp.org} • {exp.date}
+                {exp.org} | {exp.date}
               </p>
 
               {exp.tags.length > 0 ? (

@@ -1,6 +1,7 @@
 import { useEffect, useState, type JSX } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { getPublicUrl } from "../../lib/storage";
+import { validateImageFiles, validateModelFile } from "../../lib/uploadValidation";
 import type { SampleOutputKind } from "../../types";
 
 type DbAboutPageContent = {
@@ -198,6 +199,54 @@ export default function AboutAdmin(): JSX.Element {
     null,
   );
   const filteredOutputs = outputs.filter((output) => output.kind === outputKind);
+
+  const onSelectPhotoFiles = (files: File[]): void => {
+    const result = validateImageFiles(files, "About photos");
+    if (!result.ok) {
+      setErrorMsg(result.error);
+      setPendingPhotoFiles([]);
+      return;
+    }
+
+    setErrorMsg(null);
+    setPendingPhotoFiles(files);
+  };
+
+  const onSelectCertificateImage = (file: File | null): void => {
+    const result = validateImageFiles(file ? [file] : [], "Certificate image");
+    if (!result.ok) {
+      setErrorMsg(result.error);
+      setPendingCertificateImage(null);
+      return;
+    }
+
+    setErrorMsg(null);
+    setPendingCertificateImage(file);
+  };
+
+  const onSelectOutputImage = (file: File | null, label: string): void => {
+    const result = validateImageFiles(file ? [file] : [], label);
+    if (!result.ok) {
+      setErrorMsg(result.error);
+      setPendingOutputImage(null);
+      return;
+    }
+
+    setErrorMsg(null);
+    setPendingOutputImage(file);
+  };
+
+  const onSelectModelFile = (file: File | null): void => {
+    const result = validateModelFile(file, "3D model");
+    if (!result.ok) {
+      setErrorMsg(result.error);
+      setPendingModelFile(null);
+      return;
+    }
+
+    setErrorMsg(null);
+    setPendingModelFile(file);
+  };
 
   const loadAboutContent = async (): Promise<void> => {
     const { data, error } = await supabase
@@ -943,6 +992,35 @@ export default function AboutAdmin(): JSX.Element {
           </div>
         ) : null}
 
+        <div className="mt-4 grid gap-3 md:grid-cols-4">
+          <div className="rounded-xl border bg-gray-50 p-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+              Photos
+            </div>
+            <div className="mt-2 text-2xl font-bold text-gray-900">{photos.length}</div>
+          </div>
+          <div className="rounded-xl border bg-gray-50 p-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+              Certificates
+            </div>
+            <div className="mt-2 text-2xl font-bold text-gray-900">{certificates.length}</div>
+          </div>
+          <div className="rounded-xl border bg-gray-50 p-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+              Output items
+            </div>
+            <div className="mt-2 text-2xl font-bold text-gray-900">{outputs.length}</div>
+          </div>
+          <div className="rounded-xl border bg-gray-50 p-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+              Pending uploads
+            </div>
+            <div className="mt-2 text-sm font-semibold text-gray-900">
+              {pendingPhotoFiles.length} photos | {pendingCertificateImage ? "1 certificate" : "0 certificate"} | {pendingModelFile || pendingOutputImage ? "1 output asset" : "0 output asset"}
+            </div>
+          </div>
+        </div>
+
         {uploadProgress ? (
           <div className="mt-3 rounded-xl border bg-gray-50 p-3">
             <div className="flex items-center justify-between text-xs font-medium text-gray-700">
@@ -1012,7 +1090,9 @@ export default function AboutAdmin(): JSX.Element {
                   multiple
                   className="sr-only"
                   onChange={(e): void =>
-                    setPendingPhotoFiles(e.target.files ? Array.from(e.target.files) : [])
+                    onSelectPhotoFiles(
+                      e.target.files ? Array.from(e.target.files) : [],
+                    )
                   }
                 />
                 {pendingPhotoFiles.length > 0
@@ -1184,7 +1264,7 @@ export default function AboutAdmin(): JSX.Element {
                     accept="image/*"
                     className="sr-only"
                     onChange={(e): void =>
-                      setPendingCertificateImage(e.target.files?.[0] ?? null)
+                      onSelectCertificateImage(e.target.files?.[0] ?? null)
                     }
                   />
                   {pendingCertificateImage
@@ -1222,7 +1302,7 @@ export default function AboutAdmin(): JSX.Element {
                       <div>
                         <div className="font-semibold">{certificate.title}</div>
                         <div className="text-sm text-gray-600">
-                          {certificate.org} • {certificate.year}
+                          {certificate.org} | {certificate.year}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -1358,7 +1438,7 @@ export default function AboutAdmin(): JSX.Element {
                           accept=".glb,.gltf,model/gltf-binary,model/gltf+json"
                           className="sr-only"
                           onChange={(e): void =>
-                            setPendingModelFile(e.target.files?.[0] ?? null)
+                            onSelectModelFile(e.target.files?.[0] ?? null)
                           }
                         />
                         {pendingModelFile
@@ -1389,7 +1469,10 @@ export default function AboutAdmin(): JSX.Element {
                           accept="image/*"
                           className="sr-only"
                           onChange={(e): void =>
-                            setPendingOutputImage(e.target.files?.[0] ?? null)
+                            onSelectOutputImage(
+                              e.target.files?.[0] ?? null,
+                              "3D preview image",
+                            )
                           }
                         />
                         {pendingOutputImage
@@ -1433,7 +1516,10 @@ export default function AboutAdmin(): JSX.Element {
                           accept="image/*"
                           className="sr-only"
                           onChange={(e): void =>
-                            setPendingOutputImage(e.target.files?.[0] ?? null)
+                            onSelectOutputImage(
+                              e.target.files?.[0] ?? null,
+                              "Image/design file",
+                            )
                           }
                         />
                         {pendingOutputImage
@@ -1484,7 +1570,10 @@ export default function AboutAdmin(): JSX.Element {
                           accept="image/*"
                           className="sr-only"
                           onChange={(e): void =>
-                            setPendingOutputImage(e.target.files?.[0] ?? null)
+                            onSelectOutputImage(
+                              e.target.files?.[0] ?? null,
+                              "Project/app thumbnail",
+                            )
                           }
                         />
                         {pendingOutputImage
