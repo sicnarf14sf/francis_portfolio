@@ -6,8 +6,9 @@ import {
   FaLinkedin,
   FaUserTie,
 } from "react-icons/fa6";
+import { getHomeHeroImageUrl } from "../../lib/storage";
 
-const heroImage: string = new URL(
+const fallbackHeroImage: string = new URL(
   "../../assets/hero_image.JPG",
   import.meta.url,
 ).href;
@@ -18,9 +19,13 @@ export default function Home({
   onGetToKnowMe: () => void;
 }): JSX.Element {
   const [showContent, setShowContent] = useState<boolean>(false);
+  const [heroImageSrc, setHeroImageSrc] = useState<string>(() =>
+    getHomeHeroImageUrl(true),
+  );
 
   useEffect((): void => {
     setShowContent(true);
+    setHeroImageSrc(getHomeHeroImageUrl(true));
   }, []);
 
   if (!showContent) {
@@ -38,9 +43,12 @@ export default function Home({
     >
       <div className="order-1 flex justify-center md:order-1 md:justify-start">
         <img
-          src={heroImage}
+          src={heroImageSrc}
           alt="Francis working on projects"
           className="h-auto w-full max-w-[12rem] object-cover md:h-full md:max-w-none md:object-cover"
+          onError={(): void => {
+            setHeroImageSrc(fallbackHeroImage);
+          }}
         />
       </div>
 

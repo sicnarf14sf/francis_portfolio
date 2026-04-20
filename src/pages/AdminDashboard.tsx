@@ -1,11 +1,13 @@
 import { type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import HomeAdmin from "../components/admin/HomeAdmin";
 import ExperienceAdmin from "../components/admin/ExperienceAdmin";
 import AboutAdmin from "../components/admin/AboutAdmin";
 import RecommendationsAdmin from "../components/admin/RecommendationsAdmin";
 
 const sectionLinks = [
+  { href: "#admin-home", label: "Home" },
   { href: "#admin-about", label: "About" },
   { href: "#admin-recommendations", label: "Recommendations" },
   { href: "#admin-experience", label: "Experience" },
@@ -104,6 +106,18 @@ export default function AdminDashboard(): JSX.Element {
         </div>
 
         <div className="mt-6 space-y-6">
+          <section id="admin-home" className="scroll-mt-24">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Home</h2>
+                <p className="text-sm text-gray-500">
+                  Homepage hero image and first-impression content controls.
+                </p>
+              </div>
+            </div>
+            <HomeAdmin />
+          </section>
+
           <section id="admin-about" className="scroll-mt-24">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
