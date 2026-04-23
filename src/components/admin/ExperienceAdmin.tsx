@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, type JSX } from "react";
+import { useEffect, useMemo, useRef, useState, type JSX } from "react";
 import { supabase } from "../../lib/supabaseClient";
+import { renderInlineFormatting } from "../../lib/renderInlineFormatting";
 import { getPublicUrl } from "../../lib/storage";
 import { validateImageFiles } from "../../lib/uploadValidation";
 
@@ -55,6 +56,7 @@ const isStoragePath = (value: string): boolean =>
 const getImageUrl = (path: string): string => getPublicUrl(STORAGE_BUCKET, path);
 
 export default function ExperienceAdmin(): JSX.Element {
+  const successMsgRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<DbExperience[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -173,6 +175,15 @@ export default function ExperienceAdmin(): JSX.Element {
       setUploadProgress(null);
     }
   }, [selectedId]);
+
+  useEffect((): void => {
+    if (!successMsg) return;
+
+    successMsgRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [successMsg]);
 
   const uploadFileToStorage = async (
     path: string,
@@ -727,7 +738,10 @@ export default function ExperienceAdmin(): JSX.Element {
           ) : null}
 
           {successMsg ? (
-            <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+            <div
+              ref={successMsgRef}
+              className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700"
+            >
               {successMsg}
             </div>
           ) : null}
@@ -744,7 +758,7 @@ export default function ExperienceAdmin(): JSX.Element {
                 Selected
               </div>
               <div className="mt-2 text-sm font-semibold text-gray-900">
-                {selected?.title ?? "No experience selected"}
+                {selected ? renderInlineFormatting(selected.title) : "No experience selected"}
               </div>
             </div>
             <div className="rounded-xl border bg-gray-50 p-3">
@@ -760,16 +774,36 @@ export default function ExperienceAdmin(): JSX.Element {
           <div className="mt-4 space-y-3">
             <input
               className="w-full rounded-xl border px-3 py-2 text-sm"
-              placeholder="Title"
+              placeholder="Title (supports <b>bold</b> and <i>italic</i> text)"
               value={title}
               onChange={(e): void => setTitle(e.target.value)}
             />
+            <div className="rounded-xl border bg-gray-50 px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                Title Preview
+              </div>
+              <div className="mt-1 text-sm font-semibold text-gray-900">
+                {title.trim()
+                  ? renderInlineFormatting(title)
+                  : "Type title text. Use <b>...</b> for bold and <i>...</i> for italics."}
+              </div>
+            </div>
             <input
               className="w-full rounded-xl border px-3 py-2 text-sm"
-              placeholder="Organization"
+              placeholder="Organization (supports <b>bold</b> and <i>italic</i> text)"
               value={org}
               onChange={(e): void => setOrg(e.target.value)}
             />
+            <div className="rounded-xl border bg-gray-50 px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                Organization Preview
+              </div>
+              <div className="mt-1 text-sm text-gray-800">
+                {org.trim()
+                  ? renderInlineFormatting(org)
+                  : "Type organization text. Use <b>...</b> for bold and <i>...</i> for italics."}
+              </div>
+            </div>
             <input
               className="w-full rounded-xl border px-3 py-2 text-sm"
               placeholder="Role"
@@ -919,9 +953,11 @@ export default function ExperienceAdmin(): JSX.Element {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="font-semibold">{it.title}</div>
+                        <div className="font-semibold">
+                          {renderInlineFormatting(it.title)}
+                        </div>
                         <div className="text-sm text-gray-600">
-                          {it.org} | {it.role}
+                          {renderInlineFormatting(it.org)} | {it.role}
                         </div>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {it.thumbnail_image ? (
@@ -981,7 +1017,9 @@ export default function ExperienceAdmin(): JSX.Element {
               <div className="text-sm font-semibold text-gray-800">
                 Selected:
               </div>
-              <div className="text-sm text-gray-700">{selected.title}</div>
+              <div className="text-sm text-gray-700">
+                {renderInlineFormatting(selected.title)}
+              </div>
             </div>
 
             <div className="mt-5 rounded-xl border p-4">

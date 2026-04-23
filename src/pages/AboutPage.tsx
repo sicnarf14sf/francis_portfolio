@@ -51,13 +51,6 @@ export default function AboutPage(): JSX.Element {
 
         if (cancelled) return;
 
-        console.info("[AboutPage] Loaded About page data.", {
-          photoCount: photos.length,
-          outputCount: aboutOutputs.length,
-          certificateCount: certs.length,
-          outputIds: aboutOutputs.map((item) => item.id),
-        });
-
         setContent(pageContent);
         setImages(photos);
         setOutputs(aboutOutputs);
@@ -108,10 +101,14 @@ export default function AboutPage(): JSX.Element {
               {content.title}
             </h1>
 
-            <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.2fr)] xl:items-start">
-              <div className="space-y-5">
-                <ImageCarousel images={images} />
-                <SampleOutputs outputs={outputs} loading={loading} />
+            <section className="mt-5 space-y-5 xl:grid xl:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.2fr)] xl:items-start xl:gap-5 xl:space-y-0">
+              <div className="xl:space-y-5">
+                <div>
+                  <ImageCarousel images={images} />
+                </div>
+                <div className="hidden xl:block">
+                  <SampleOutputs outputs={outputs} loading={loading} />
+                </div>
               </div>
 
               <div className="space-y-5">
@@ -159,6 +156,10 @@ export default function AboutPage(): JSX.Element {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div className="xl:hidden">
+                  <SampleOutputs outputs={outputs} loading={loading} />
                 </div>
 
                 <div>

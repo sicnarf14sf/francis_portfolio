@@ -1,5 +1,7 @@
 import {
+  Component,
   Suspense,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -7,8 +9,7 @@ import {
   type JSX,
 } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Environment, Html, OrbitControls, useGLTF } from "@react-three/drei";
-import { DRACOLoader } from "three-stdlib";
+import { Html, OrbitControls, useGLTF, useProgress } from "@react-three/drei";
 import * as THREE from "three";
 
 type GLBViewerProps = {
@@ -21,11 +22,105 @@ type ViewState = {
   target: THREE.Vector3;
 };
 
+type ViewerStatus = "loading" | "ready" | "error";
+
+const LOAD_TIMEOUT_MS = 30000;
+const PRECHECK_TIMEOUT_MS = 12000;
+
+const getAssetLabel = (src: string): string => {
+  try {
+    const url = new URL(src, window.location.origin);
+    return url.pathname.split("/").pop() ?? "model";
+  } catch {
+    return src.split("/").pop() ?? "model";
+  }
+};
+
+const verifyModelSource = async (
+  src: string,
+  signal: AbortSignal,
+): Promise<{ ok: boolean; message?: string }> => {
+  if (!src) {
+    return { ok: false, message: "No model URL was provided." };
+  }
+
+  try {
+    const response = await fetch(src, {
+      method: "GET",
+      headers: { Range: "bytes=0-1023" },
+      signal,
+      cache: "no-store",
+    });
+
+    if (!response.ok && response.status !== 206) {
+      return {
+        ok: false,
+        message: `Model file request failed with status ${response.status}.`,
+      };
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (
+      contentType &&
+      !contentType.includes("model/gltf-binary") &&
+      !contentType.includes("application/octet-stream") &&
+      !contentType.includes("binary/octet-stream")
+    ) {
+      return {
+        ok: false,
+        message: `Unexpected content type: ${contentType}.`,
+      };
+    }
+
+    return { ok: true };
+  } catch (error) {
+    if (signal.aborted) {
+      return { ok: false, message: "The model check was cancelled." };
+    }
+
+    return {
+      ok: false,
+      message:
+        error instanceof Error
+          ? error.name === "AbortError"
+            ? "Timed out while checking the model file."
+            : error.message
+          : "The model file could not be reached.",
+    };
+  }
+};
+
 function LoadingOverlay(): JSX.Element {
+  const { progress, active, errors, item, loaded, total } = useProgress();
+  const boundedProgress = Math.max(8, Math.min(100, Math.round(progress)));
+  const showSlowHint = active && loaded === 0 && total === 0;
+
   return (
     <Html center>
-      <div className="rounded-xl border bg-white px-4 py-3 text-xs font-semibold text-gray-700 shadow-sm">
-        Loading 3D model...
+      <div className="w-56 rounded-xl border bg-white/96 p-4 shadow-sm backdrop-blur">
+        <div className="flex items-center justify-between gap-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500">
+          <span>Loading 3D Model</span>
+          <span>{boundedProgress}%</span>
+        </div>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
+          <div
+            className="h-full rounded-full bg-slate-800 transition-[width] duration-200"
+            style={{ width: `${boundedProgress}%` }}
+          />
+        </div>
+        <p className="mt-3 text-xs text-gray-600">
+          {item ? `Fetching ${item.split("/").pop() ?? "model"}...` : "Downloading geometry and textures..."}
+        </p>
+        {showSlowHint ? (
+          <p className="mt-1 text-[11px] text-gray-500">
+            Preparing decoder and model file...
+          </p>
+        ) : null}
+        {errors.length > 0 ? (
+          <p className="mt-1 text-[11px] text-red-600">
+            The 3D file could not be loaded.
+          </p>
+        ) : null}
       </div>
     </Html>
   );
@@ -34,19 +129,15 @@ function LoadingOverlay(): JSX.Element {
 type ModelWithAutoFitProps = {
   src: string;
   onFitted: (view: ViewState) => void;
+  onReady: () => void;
 };
 
-const configureDracoLoader = (loader: DRACOLoader): void => {
-  loader.setDecoderPath("/draco/gltf/");
-  loader.setDecoderConfig({ type: "js" });
-};
-
-function ModelWithAutoFit({ src, onFitted }: ModelWithAutoFitProps): JSX.Element {
-  const gltf = useGLTF(src, true, true, (loader) => {
-    const dracoLoader = new DRACOLoader();
-    configureDracoLoader(dracoLoader);
-    loader.setDRACOLoader(dracoLoader);
-  });
+function ModelWithAutoFit({
+  src,
+  onFitted,
+  onReady,
+}: ModelWithAutoFitProps): JSX.Element {
+  const gltf = useGLTF(src, "/draco/gltf/", false);
   const { camera, invalidate } = useThree();
   const fittedOnceRef = useRef<boolean>(false);
 
@@ -84,10 +175,11 @@ function ModelWithAutoFit({ src, onFitted }: ModelWithAutoFitProps): JSX.Element
     cam.updateProjectionMatrix();
 
     onFitted({ camPos: newCamPos.clone(), target: center.clone() });
+    onReady();
 
     fittedOnceRef.current = true;
     invalidate();
-  }, [camera, gltf.scene, invalidate, onFitted]);
+  }, [camera, gltf.scene, invalidate, onFitted, onReady]);
 
   return <primitive object={gltf.scene} />;
 }
@@ -95,9 +187,10 @@ function ModelWithAutoFit({ src, onFitted }: ModelWithAutoFitProps): JSX.Element
 type SceneProps = {
   src: string;
   enableAutoRotate: boolean;
+  onReady: () => void;
 };
 
-function Scene({ src, enableAutoRotate }: SceneProps): JSX.Element {
+function Scene({ src, enableAutoRotate, onReady }: SceneProps): JSX.Element {
   const controlsRef = useRef<
     | (THREE.EventDispatcher & { target: THREE.Vector3; update: () => void })
     | null
@@ -133,11 +226,15 @@ function Scene({ src, enableAutoRotate }: SceneProps): JSX.Element {
 
   return (
     <>
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[3, 4, 2]} intensity={0.9} />
-      <Environment preset="sunset" />
+      <ambientLight intensity={1} />
+      <hemisphereLight
+        args={["#f8fafc", "#cbd5e1", 1.1]}
+        position={[0, 1, 0]}
+      />
+      <directionalLight position={[4, 5, 3]} intensity={1.2} />
+      <directionalLight position={[-3, 2, -2]} intensity={0.45} />
 
-      <ModelWithAutoFit src={src} onFitted={setFittedView} />
+      <ModelWithAutoFit src={src} onFitted={setFittedView} onReady={onReady} />
 
       <OrbitControls
         ref={(ref) => {
@@ -169,31 +266,164 @@ function Scene({ src, enableAutoRotate }: SceneProps): JSX.Element {
   );
 }
 
+class ViewerErrorBoundary extends Component<
+  { children: JSX.Element },
+  { hasError: boolean }
+> {
+  static getDerivedStateFromError(): { hasError: true } {
+    return { hasError: true };
+  }
+
+  state = { hasError: false };
+
+  componentDidCatch(): void {}
+
+  render(): JSX.Element {
+    if (this.state.hasError) {
+      return (
+        <div className="flex h-full items-center justify-center bg-muted px-6 text-center text-sm text-muted-foreground">
+          The 3D model could not be displayed.
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export default function GLBViewer({
   src,
   enableAutoRotate = true,
 }: GLBViewerProps): JSX.Element {
+  const [status, setStatus] = useState<ViewerStatus>("loading");
+  const [statusMessage, setStatusMessage] = useState<string>(
+    "Preparing 3D model viewer...",
+  );
+  const timeoutRef = useRef<number | null>(null);
+
+  const handleReady = useCallback(
+    () => (): void => {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      setStatus("ready");
+      setStatusMessage("");
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+    const precheckTimeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, PRECHECK_TIMEOUT_MS);
+
+    setStatus("loading");
+    setStatusMessage(`Checking ${getAssetLabel(src)}...`);
+
+    void (async (): Promise<void> => {
+      const precheck = await verifyModelSource(src, controller.signal);
+      window.clearTimeout(precheckTimeoutId);
+      if (cancelled) return;
+
+      if (!precheck.ok) {
+        setStatus("error");
+        setStatusMessage(
+          precheck.message ??
+            "The model file could not be reached from this browser.",
+        );
+        return;
+      }
+
+      setStatusMessage("Downloading geometry and textures...");
+      useGLTF.preload(src, "/draco/gltf/", false);
+
+      timeoutRef.current = window.setTimeout(() => {
+        setStatus((current) => (current === "ready" ? current : "error"));
+        setStatusMessage(
+          "The model file is reachable, but rendering did not finish in time.",
+        );
+      }, LOAD_TIMEOUT_MS);
+    })();
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(precheckTimeoutId);
+      controller.abort();
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      useGLTF.clear(src);
+    };
+  }, [src]);
+
+  if (status === "error") {
+    return (
+      <div className="flex h-full items-center justify-center bg-muted px-6 text-center">
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            This 3D model could not be displayed.
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {statusMessage}
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Check the file path, bucket access, and the model export in Supabase.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Canvas
-      // Keep the viewer stable and lighter than the default Three.js setup.
-      frameloop="demand"
-      dpr={[1, 1.5]}
-      gl={{
-        antialias: true,
-        alpha: true,
-        powerPreference: "low-power",
-        preserveDrawingBuffer: false,
-      }}
-      shadows={false}
-      camera={{ position: [0, 0, 2.5], fov: 45 }}
-      className="h-full w-full"
-      onCreated={({ gl }) => {
-        gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-      }}
-    >
-      <Suspense fallback={<LoadingOverlay />}>
-        <Scene src={src} enableAutoRotate={enableAutoRotate} />
-      </Suspense>
-    </Canvas>
+    <ViewerErrorBoundary>
+      <Canvas
+        key={src}
+        frameloop={enableAutoRotate ? "always" : "demand"}
+        dpr={[1, 1.1]}
+        gl={{
+          antialias: false,
+          alpha: true,
+          powerPreference: "low-power",
+          preserveDrawingBuffer: false,
+        }}
+        shadows={false}
+        camera={{ position: [0, 0, 2.5], fov: 45 }}
+        className="h-full w-full"
+        onCreated={({ gl }) => {
+          const canvas = gl.domElement;
+          gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.1));
+
+          const handleContextLost = (event: Event): void => {
+            event.preventDefault();
+            setStatus("error");
+            setStatusMessage(
+              "WebGL context was lost while rendering. This usually points to a large model or texture set.",
+            );
+          };
+
+          canvas.addEventListener("webglcontextlost", handleContextLost, {
+            passive: false,
+          });
+
+          const originalDispose = gl.dispose.bind(gl);
+          gl.dispose = (): void => {
+            canvas.removeEventListener("webglcontextlost", handleContextLost);
+            originalDispose();
+          };
+        }}
+      >
+        <Suspense fallback={<LoadingOverlay />}>
+          <Scene
+            src={src}
+            enableAutoRotate={enableAutoRotate}
+            onReady={handleReady}
+          />
+        </Suspense>
+      </Canvas>
+    </ViewerErrorBoundary>
   );
 }

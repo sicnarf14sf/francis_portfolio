@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { getPublicUrl } from "../../lib/storage";
 import { validateImageFiles, validateModelFile } from "../../lib/uploadValidation";
@@ -152,6 +152,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 };
 
 export default function AboutAdmin(): JSX.Element {
+  const successMsgRef = useRef<HTMLDivElement | null>(null);
   const [contentRowId, setContentRowId] = useState<number | null>(null);
   const [title, setTitle] = useState<string>("");
   const [intro, setIntro] = useState<string>("");
@@ -327,6 +328,15 @@ export default function AboutAdmin(): JSX.Element {
       setLoading(false);
     })();
   }, []);
+
+  useEffect((): void => {
+    if (!successMsg) return;
+
+    successMsgRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [successMsg]);
 
   const refreshAll = async (): Promise<void> => {
     setErrorMsg(null);
@@ -987,7 +997,10 @@ export default function AboutAdmin(): JSX.Element {
         ) : null}
 
         {successMsg ? (
-          <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+          <div
+            ref={successMsgRef}
+            className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700"
+          >
             {successMsg}
           </div>
         ) : null}

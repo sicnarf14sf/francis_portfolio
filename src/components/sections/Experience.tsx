@@ -1,6 +1,7 @@
 import { type JSX } from "react";
 import { FaBriefcase } from "react-icons/fa";
 import SectionHeader from "../layout/SectionHeader";
+import { renderInlineFormatting } from "../../lib/renderInlineFormatting";
 import type { ExperienceItem } from "../../types";
 
 type ExperienceSectionProps = {
@@ -41,9 +42,11 @@ export default function Experience({
             </div>
 
             <div className={compact ? "p-3" : "p-4"}>
-              <h3 className="text-sm font-bold md:text-base">{exp.title}</h3>
+              <h3 className="text-sm font-bold md:text-base">
+                {renderInlineFormatting(exp.title)}
+              </h3>
               <p className="mt-1 text-xs text-foreground/70">
-                {exp.org} | {exp.date}
+                {renderInlineFormatting(exp.org)} | {exp.date}
               </p>
 
               {exp.tags.length > 0 ? (

@@ -1,4 +1,4 @@
-import { useMemo, useState, type JSX } from "react";
+import { useEffect, useMemo, useRef, useState, type JSX } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import {
   getHomeHeroImageUrl,
@@ -8,6 +8,7 @@ import {
 import { validateImageFiles } from "../../lib/uploadValidation";
 
 export default function HomeAdmin(): JSX.Element {
+  const successMsgRef = useRef<HTMLDivElement | null>(null);
   const [pendingHeroImage, setPendingHeroImage] = useState<File | null>(null);
   const [busy, setBusy] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -18,6 +19,15 @@ export default function HomeAdmin(): JSX.Element {
     () => `${getHomeHeroImageUrl(false)}?v=${previewVersion}`,
     [previewVersion],
   );
+
+  useEffect((): void => {
+    if (!successMsg) return;
+
+    successMsgRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [successMsg]);
 
   const onSelectHeroImage = (file: File | null): void => {
     const result = validateImageFiles(file ? [file] : [], "Hero image");
@@ -105,7 +115,10 @@ export default function HomeAdmin(): JSX.Element {
       ) : null}
 
       {successMsg ? (
-        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <div
+          ref={successMsgRef}
+          className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+        >
           {successMsg}
         </div>
       ) : null}
