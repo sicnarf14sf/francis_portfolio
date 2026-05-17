@@ -1,11 +1,15 @@
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type CSSProperties,
   type JSX,
 } from "react";
+import {
+  getImageLoadSnapshot,
+  preloadImage,
+  subscribeImageLoad,
+} from "../../lib/imagePreloader";
 
 type ProgressiveImageProps = {
   src: string;
@@ -19,6 +23,7 @@ type ProgressiveImageProps = {
   onClick?: () => void;
   onReady?: (meta: { naturalWidth: number; naturalHeight: number }) => void;
   draggable?: boolean;
+  startLoad?: boolean;
 };
 
 type LoadState = "idle" | "loading" | "loaded" | "error";
@@ -35,11 +40,11 @@ export default function ProgressiveImage({
   onClick,
   onReady,
   draggable = false,
+  startLoad = true,
 }: ProgressiveImageProps): JSX.Element {
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [progress, setProgress] = useState<number | null>(null);
   const [resolvedSrc, setResolvedSrc] = useState<string | null>(null);
-  const objectUrlRef = useRef<string | null>(null);
 
   const wrapperClassName = useMemo(
     () => `relative overflow-hidden ${containerClassName ?? ""}`.trim(),
@@ -52,96 +57,62 @@ export default function ProgressiveImage({
 
   useEffect(() => {
     let cancelled = false;
-    const controller = new AbortController();
 
-    const revokeObjectUrl = (): void => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-        objectUrlRef.current = null;
-      }
-    };
+    if (!src) {
+      setResolvedSrc(null);
+      setProgress(null);
+      setLoadState("error");
+      return (): void => {
+        cancelled = true;
+      };
+    }
 
-    const loadImage = async (): Promise<void> => {
-      if (!src) {
-        revokeObjectUrl();
-        setResolvedSrc(null);
-        setLoadState("error");
+    const applySnapshot = (snapshot: {
+      status: LoadState;
+      progress: number | null;
+      resolvedSrc: string | null;
+    }): void => {
+      if (cancelled) return;
+
+      if (snapshot.status === "loaded" && snapshot.resolvedSrc) {
+        setResolvedSrc(snapshot.resolvedSrc);
+        setProgress(100);
+        setLoadState("loaded");
         return;
       }
 
-      setLoadState("loading");
-      setProgress(0);
-      setResolvedSrc(null);
-      revokeObjectUrl();
-
-      try {
-        const response = await fetch(src, {
-          signal: controller.signal,
-          cache: "force-cache",
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to load image: ${response.status}`);
-        }
-
-        if (!response.body) {
-          const blob = await response.blob();
-          if (cancelled) return;
-
-          const blobUrl = URL.createObjectURL(blob);
-          objectUrlRef.current = blobUrl;
-          setResolvedSrc(blobUrl);
-          setProgress(100);
-          setLoadState("loaded");
-          return;
-        }
-
-        const total = Number(response.headers.get("content-length") ?? 0);
-        const reader = response.body.getReader();
-        const chunks: Uint8Array[] = [];
-        let loaded = 0;
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          if (!value) continue;
-
-          chunks.push(value);
-          loaded += value.length;
-
-          if (total > 0 && !cancelled) {
-            setProgress(Math.min(99, Math.round((loaded / total) * 100)));
-          } else if (!cancelled) {
-            setProgress(null);
-          }
-        }
-
-        if (cancelled) return;
-
-        const blob = new Blob(chunks);
-        const blobUrl = URL.createObjectURL(blob);
-        objectUrlRef.current = blobUrl;
-        setResolvedSrc(blobUrl);
-        setProgress(100);
-        setLoadState("loaded");
-      } catch (error) {
-        if (cancelled || controller.signal.aborted) return;
+      if (snapshot.status === "error") {
         setResolvedSrc(src);
         setProgress(null);
-        setLoadState(
-          error instanceof Error && error.name === "AbortError" ? "idle" : "loaded",
-        );
+        setLoadState("loaded");
+        return;
       }
+
+      setResolvedSrc(null);
+      setProgress(snapshot.progress ?? null);
+      setLoadState("loading");
     };
 
-    void loadImage();
+    setResolvedSrc(null);
+    setProgress(getImageLoadSnapshot(src)?.progress ?? 0);
+    setLoadState("loading");
+
+    const unsubscribe = subscribeImageLoad(src, applySnapshot);
+
+    if (startLoad) {
+      void preloadImage(src).catch(() => {
+        if (cancelled) return;
+        setResolvedSrc(src);
+        setProgress(null);
+        setLoadState("loaded");
+      });
+    }
 
     return () => {
       cancelled = true;
-      controller.abort();
-      revokeObjectUrl();
+      unsubscribe();
     };
-  }, [src]);
+  }, [src, startLoad]);
 
   return (
     <div className={wrapperClassName}>

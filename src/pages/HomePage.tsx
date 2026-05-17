@@ -13,6 +13,43 @@ import type { ExperienceItem, RecommendationItem } from "../types";
 import { fetchExperiences } from "../lib/api/experience";
 import { fetchEducation, type EducationItem } from "../lib/api/education";
 import { fetchRecommendations } from "../lib/api/recommendations";
+import { preloadImages } from "../lib/imagePreloader";
+
+type NavigatorWithConnection = Navigator & {
+  connection?: {
+    saveData?: boolean;
+  };
+};
+
+type WindowWithIdleCallback = Window &
+  typeof globalThis & {
+    requestIdleCallback?: Window["requestIdleCallback"];
+    cancelIdleCallback?: Window["cancelIdleCallback"];
+  };
+
+const getExperienceImageUrls = (experience: ExperienceItem): string[] =>
+  experience.images.map((image) => image.src);
+
+const shouldWarmExperienceImages = (): boolean => {
+  const connection = (navigator as NavigatorWithConnection).connection;
+  return connection?.saveData !== true;
+};
+
+const scheduleIdleTask = (task: () => void): (() => void) => {
+  const browserWindow = window as WindowWithIdleCallback;
+
+  if (browserWindow.requestIdleCallback && browserWindow.cancelIdleCallback) {
+    const idleId = browserWindow.requestIdleCallback(task, { timeout: 2500 });
+    return (): void => browserWindow.cancelIdleCallback?.(idleId);
+  }
+
+  const timeoutId = browserWindow.setTimeout(task, 900);
+  return (): void => browserWindow.clearTimeout(timeoutId);
+};
+
+const warmExperienceDetailsRoute = (): void => {
+  void import("./ExperienceDetailsPage");
+};
 
 export default function HomePage(): JSX.Element {
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
@@ -46,8 +83,9 @@ export default function HomePage(): JSX.Element {
         if (cancelled) return;
         setErrorMsg(err instanceof Error ? err.message : "Failed to load content.");
       } finally {
-        if (cancelled) return;
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     })();
 
@@ -55,6 +93,31 @@ export default function HomePage(): JSX.Element {
       cancelled = true;
     };
   }, []);
+
+  useEffect((): (() => void) | void => {
+    if (loading || experiences.length === 0 || !shouldWarmExperienceImages()) return;
+
+    let cancelled = false;
+    const cancelIdleTask = scheduleIdleTask((): void => {
+      if (cancelled) return;
+
+      warmExperienceDetailsRoute();
+      void preloadImages(
+        experiences.flatMap((experience) => getExperienceImageUrls(experience)),
+        { concurrency: 2 },
+      );
+    });
+
+    return (): void => {
+      cancelled = true;
+      cancelIdleTask();
+    };
+  }, [experiences, loading]);
+
+  const warmExperienceDetails = (experience: ExperienceItem): void => {
+    warmExperienceDetailsRoute();
+    void preloadImages(getExperienceImageUrls(experience), { concurrency: 3 });
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background pr-5 pl-5 text-foreground">
@@ -99,6 +162,7 @@ export default function HomePage(): JSX.Element {
                     <Experience
                       experiences={experiences}
                       onReadMore={(exp) => navigate(`/experience/${exp.id}`)}
+                      onWarmDetails={warmExperienceDetails}
                       compact
                     />
                   </div>
@@ -115,6 +179,7 @@ export default function HomePage(): JSX.Element {
                     <Experience
                       experiences={experiences}
                       onReadMore={(exp) => navigate(`/experience/${exp.id}`)}
+                      onWarmDetails={warmExperienceDetails}
                       compact
                     />
                   </div>

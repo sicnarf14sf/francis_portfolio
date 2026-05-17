@@ -7,12 +7,14 @@ import type { ExperienceItem } from "../../types";
 type ExperienceSectionProps = {
   experiences: ExperienceItem[];
   onReadMore: (exp: ExperienceItem) => void;
+  onWarmDetails?: (exp: ExperienceItem) => void;
   compact?: boolean;
 };
 
 export default function Experience({
   experiences,
   onReadMore,
+  onWarmDetails,
   compact = false,
 }: ExperienceSectionProps): JSX.Element {
   return (
@@ -65,6 +67,9 @@ export default function Experience({
               <div className={compact ? "mt-3" : "mt-4"}>
                 <button
                   onClick={(): void => onReadMore(exp)}
+                  onFocus={(): void => onWarmDetails?.(exp)}
+                  onMouseEnter={(): void => onWarmDetails?.(exp)}
+                  onTouchStart={(): void => onWarmDetails?.(exp)}
                   className="w-full border bg-foreground px-4 py-2 text-sm font-semibold text-background transition hover:opacity-90"
                 >
                   Read more

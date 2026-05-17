@@ -10,6 +10,7 @@ import {
 import { Expand, Minus, Plus, X } from "lucide-react";
 import type { ExperienceDetailsProps } from "../../types/index.ts";
 import { renderInlineFormatting } from "../../lib/renderInlineFormatting";
+import { preloadImages } from "../../lib/imagePreloader";
 import ProgressiveImage from "../ui/ProgressiveImage";
 
 type PanOffset = {
@@ -137,18 +138,10 @@ export default function ExperienceDetails({
   useEffect(() => {
     if (!hasImages) return;
 
-    const preloaders = experience.images.map((image) => {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = image.src;
-      return img;
-    });
-
-    return (): void => {
-      preloaders.forEach((img) => {
-        img.src = "";
-      });
-    };
+    void preloadImages(
+      experience.images.map((image) => image.src),
+      { concurrency: 3 },
+    );
   }, [experience.images, hasImages]);
 
   useEffect(() => {
@@ -366,6 +359,7 @@ export default function ExperienceDetails({
                         imgClassName="h-full w-full object-cover"
                         loadingLabel="Loading"
                         fallbackLabel="Unavailable"
+                        startLoad={idx === activeImageIndex}
                       />
                     </button>
                   ))}

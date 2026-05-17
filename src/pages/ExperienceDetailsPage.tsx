@@ -4,6 +4,7 @@ import ExperienceDetails from "../components/sections/ExperienceDetails";
 import type { ExperienceItem } from "../types";
 import { fetchExperienceById } from "../lib/api/experience";
 import { MODEL_OVERRIDES } from "../data/modelOverrides";
+import { preloadImages } from "../lib/imagePreloader";
 
 export default function ExperienceDetailsPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -33,13 +34,20 @@ export default function ExperienceDetailsPage(): JSX.Element {
         }
 
         const overrides = MODEL_OVERRIDES[exp.id];
-        setExperience({
+        const nextExperience = {
           ...exp,
           models: overrides,
-        });
+        };
+
+        void preloadImages(
+          nextExperience.images.map((image) => image.src),
+          { concurrency: 3 },
+        );
+        setExperience(nextExperience);
       } finally {
-        if (cancelled) return;
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     })();
 
